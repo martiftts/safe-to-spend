@@ -87,6 +87,13 @@
   .tag.pol { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.1); color: var(--amber); }
   .tags { display: flex; gap: 6px; flex-wrap: wrap; }
 
+  /* esempio ingresso → uscita dentro la scheda agente */
+  .io-ex { display: grid; grid-template-columns: 1fr 28px 1.15fr; gap: 10px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .io-in, .io-out { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+  .io-k { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--faint); font-weight: 600; margin-bottom: 3px; }
+  .io-arrow { text-align: center; color: var(--purple); font-size: 17px; }
+  @media (max-width: 1000px) { .io-ex { grid-template-columns: 1fr; } .io-arrow { text-align: left; } }
+
   ul.clean { list-style: none; padding: 0; margin: 0; }
   ul.clean li { position: relative; padding-left: 20px; color: var(--muted); margin-bottom: 8px; font-size: 14px; }
   ul.clean li::before { content: "›"; position: absolute; left: 0; color: var(--purple); font-weight: 700; }
@@ -224,66 +231,83 @@
   </div>
 </section>
 
-<!-- 03 · tassonomia ────────────────────────────────────────── -->
+<!-- 03 · i tre agenti ──────────────────────────────────────── -->
 <section class="slide">
-  <span class="eyebrow">La macchina</span>
-  <h2>Tre agenti, cinque skill,<br />due modelli</h2>
-  <p style="max-width:80ch;margin-bottom:22px;">
-    Tre categorie distinte, con confini precisi. Un componente è un <em>agente</em> solo se ha un modello:
-    tutto il resto è codice, e chiamarlo agente non lo renderebbe più agentico.
-  </p>
-  <div class="cols" style="grid-template-columns:1fr 1fr;">
-    <div>
-      <div class="agent" style="margin-bottom:14px;">
-        <div class="a-head"><div class="a-name"><span class="kind">Definizione</span>Agente</div><span class="tag">3</span></div>
-        <div class="a-body">Ha un <strong>modello</strong>, un prompt versionato in <span class="mono">agents/prompts/</span>,
-        uno schema di output Zod e un fallback dichiarato. Interpreta o produce linguaggio.</div>
-        <div class="meta" style="margin-top:10px;">
-          <div class="meta-row"><span class="k">intake</span><span class="v">linguaggio libero → dati strutturati · <span class="tag">opus-5</span></span></div>
-          <div class="meta-row"><span class="k">categorizer</span><span class="v">descrizioni sporche → categoria · <span class="tag">haiku-4-5</span></span></div>
-          <div class="meta-row"><span class="k">narrator</span><span class="v">numeri calcolati → frasi · <span class="tag">haiku-4-5</span></span></div>
-        </div>
-      </div>
-      <div class="agent det">
-        <div class="a-head"><div class="a-name"><span class="kind">Definizione</span>Skill deterministica</div><span class="tag det">5</span></div>
-        <div class="a-body">Codice puro. Nessun modello, stesso ingresso → stessa uscita.
-        <strong>Calcola o verifica.</strong> Testabile con valori attesi.</div>
-        <div class="meta" style="margin-top:10px;">
-          <div class="meta-row"><span class="k">engine</span><span class="v">catena, accantonamento, indicatori</span></div>
-          <div class="meta-row"><span class="k">solver</span><span class="v">obiettivo e leve → date e divario</span></div>
-          <div class="meta-row"><span class="k">recurrence</span><span class="v">addebiti ricorrenti per importo e cadenza</span></div>
-          <div class="meta-row"><span class="k">grounding</span><span class="v">ogni cifra nel testo esiste nei calcoli?</span></div>
-          <div class="meta-row"><span class="k">guardrail</span><span class="v">nessuna frase vietata dalle politiche?</span></div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div class="agent" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.06);margin-bottom:14px;">
-        <div class="a-head"><div class="a-name"><span class="kind">Definizione</span>Politica</div><span class="tag pol">4</span></div>
-        <div class="a-body">Regola trasversale in <span class="mono">agents/policies/</span>, applicata a ogni testo in uscita.
-        <strong>Fonte unica:</strong> gli altri file la citano per nome, non la riscrivono.</div>
-        <div class="meta" style="margin-top:10px;">
-          <div class="meta-row"><span class="k">no-advice</span><span class="v">il confine fra spiegare e consigliare</span></div>
-          <div class="meta-row"><span class="k">no-moralizing</span><span class="v">nessun giudizio, in nessuna direzione</span></div>
-          <div class="meta-row"><span class="k">grounding</span><span class="v">nessuna cifra non calcolata</span></div>
-          <div class="meta-row"><span class="k">escalation</span><span class="v">fallback e limiti di iterazione</span></div>
-        </div>
-      </div>
-      <h3>Le tre regole che li governano</h3>
-      <div class="agent det" style="margin-bottom:8px;">
-        <div class="a-head"><div class="a-name" style="font-size:14px;">1 · L'AI non tocca un numero</div></div>
-        <div class="a-body" style="margin-bottom:0;">Gli agenti stanno agli estremi della catena. Il centro è codice.</div>
-      </div>
-      <div class="agent det" style="margin-bottom:8px;">
-        <div class="a-head"><div class="a-name" style="font-size:14px;">2 · Un modello solo dove serve</div></div>
-        <div class="a-body" style="margin-bottom:0;">Cinque skill contro tre agenti. Un agente in più non rende un sistema più agentico: lo rende più fragile e più caro.</div>
-      </div>
-      <div class="agent det">
-        <div class="a-head"><div class="a-name" style="font-size:14px;">3 · Ogni regola è scritta una volta</div></div>
-        <div class="a-body" style="margin-bottom:0;">Vale nei file di istruzioni e nel codice: le politiche sono costanti condivise, non testo duplicato nei prompt.</div>
-      </div>
+  <span class="eyebrow">I tre agenti</span>
+  <h2>Cosa fa ognuno, concretamente</h2>
+
+  <div class="agent">
+    <div class="a-head"><div class="a-name"><span class="kind">Agente 1 · schermata «spese future»</span><span class="mono">intake</span></div><span class="tag">claude-opus-5</span></div>
+    <div class="a-body">L'utente scrive come gli viene. Lui capisce quanto e quando, e <strong>si accorge di quando non è sicuro</strong>.</div>
+    <div class="io-ex">
+      <div class="io-in"><span class="io-k">l'utente scrive</span>«a giugno andiamo in vacanza, sui milleduecento euro»</div>
+      <div class="io-arrow">→</div>
+      <div class="io-out"><span class="io-k">produce</span><span class="mono">{ voce: "vacanza", importo: 1200, mesi: 6 }</span><br />
+      <span style="color:var(--amber);">+ «sui» segnala una stima → chiede conferma invece di darlo per buono</span></div>
     </div>
   </div>
+
+  <div class="agent">
+    <div class="a-head"><div class="a-name"><span class="kind">Agente 2 · schermata «le tue uscite»</span><span class="mono">categorizer</span></div><span class="tag">claude-haiku-4-5</span></div>
+    <div class="a-body">Legge le descrizioni dell'estratto conto, che sono sporche e abbreviate, e le porta a sette categorie.</div>
+    <div class="io-ex">
+      <div class="io-in"><span class="io-k">sull'estratto conto</span><span class="mono">PAYPAL *SPOTIFY</span> · <span class="mono">CONAD VIA ROMA 42</span> · <span class="mono">PAGOBANCOMAT 0412</span></div>
+      <div class="io-arrow">→</div>
+      <div class="io-out"><span class="io-k">assegna</span><span class="mono">abbonamenti</span> · <span class="mono">alimentari</span> · <span class="mono">altro</span><br />
+      <span style="color:var(--green);">viene chiamato solo sulle descrizioni mai viste prima</span></div>
+    </div>
+  </div>
+
+  <div class="agent">
+    <div class="a-head"><div class="a-name"><span class="kind">Agente 3 · schermata «cruscotto»</span><span class="mono">narrator</span></div><span class="tag">claude-haiku-4-5 · effort low</span></div>
+    <div class="a-body">Riceve i numeri <strong>già calcolati</strong> e li trasforma in due frasi. Non fa aritmetica: riformula.</div>
+    <div class="io-ex">
+      <div class="io-in"><span class="io-k">riceve dal motore</span><span class="mono">{ oggi: 13.33, margine: 400, giorni: 30 }</span></div>
+      <div class="io-arrow">→</div>
+      <div class="io-out"><span class="io-k">scrive</span>«Oggi hai 13,33 € di spazio. È il tuo margine di 400 € diviso i 30 giorni del mese.»<br />
+      <span style="color:var(--rose);">se inventasse una cifra, il testo verrebbe rifiutato prima dello schermo</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 03a · le cinque skill ──────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Le cinque skill deterministiche</span>
+  <h2>Dove non serve un modello</h2>
+  <p style="max-width:78ch;">Codice puro: stesso ingresso, stessa uscita, testabile con valori attesi.
+  Fanno <strong>tutti i calcoli</strong> e <strong>tutte le verifiche</strong> del sistema.</p>
+  <table style="margin-top:14px;">
+    <tr><th style="width:17%;">Skill</th><th style="width:40%;">Cosa fa nell'app</th><th>Esempio</th></tr>
+    <tr>
+      <td><span class="mono" style="color:var(--green);">engine</span></td>
+      <td>Sottrae rate, spese fisse e accantonamenti dal reddito, divide per i giorni del mese. Calcola anche scala di equivalenza, quota impegnata e timeline delle rate.</td>
+      <td class="mono" style="font-size:12px;">1.950 − 800 − 480 − 270<br />= 400 → ÷ 30 = <strong style="color:var(--green);">13,33</strong></td>
+    </tr>
+    <tr>
+      <td><span class="mono" style="color:var(--green);">solver</span></td>
+      <td>Data la meta dell'utente e le leve che ha mosso, calcola quando ci arriva e quanto manca ogni mese.</td>
+      <td class="mono" style="font-size:12px;">6.000 € a 400/mese → mar 2028<br />a 485/mese → <strong style="color:var(--green);">dic 2027</strong></td>
+    </tr>
+    <tr>
+      <td><span class="mono" style="color:var(--green);">recurrence</span></td>
+      <td>Trova gli addebiti che tornano uguali ogni mese — la parte del bilancio che le persone dimenticano di avere.</td>
+      <td class="mono" style="font-size:12px;">4 addebiti automatici<br />= <strong style="color:var(--green);">42 €/mese</strong></td>
+    </tr>
+    <tr>
+      <td><span class="mono" style="color:var(--green);">grounding</span></td>
+      <td>Prende il testo del <span class="mono">narrator</span>, estrae ogni cifra e la confronta con i numeri dell'<span class="mono">engine</span>. Se non c'è, butta via il testo.</td>
+      <td class="mono" style="font-size:12px;">«…il 6,91%…»<br /><strong style="color:var(--rose);">✕ non è nei calcoli</strong></td>
+    </tr>
+    <tr>
+      <td><span class="mono" style="color:var(--green);">guardrail</span></td>
+      <td>Legge ogni frase prima che vada a schermo e blocca quelle vietate dalle politiche.</td>
+      <td class="mono" style="font-size:12px;">«dovresti» · «voluttuarie»<br />«bravo» → <strong style="color:var(--rose);">bloccate</strong></td>
+    </tr>
+  </table>
+  <p style="margin-top:20px;font-size:15px;">
+    <strong>Cinque skill contro tre agenti.</strong> Un agente in più non rende un sistema più agentico:
+    lo rende più fragile e più caro. Qui un modello avrebbe fatto peggio della moltiplicazione.
+  </p>
 </section>
 
 <!-- 03b · il flusso ────────────────────────────────────────── -->
