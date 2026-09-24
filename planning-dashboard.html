@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Safe to Spend · Planning Dashboard</title>
+<style>
+  :root {
+    --purple: #A100FF;
+    --purple-light: #BE82FF;
+    --purple-dim: rgba(161,0,255,0.12);
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --bg: #050008;
+    --surface: #0e0018;
+    --border: rgba(255,255,255,0.08);
+    --text: #fff;
+    --muted: rgba(255,255,255,0.45);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: "Inter", system-ui, sans-serif; font-size: 14px; line-height: 1.5; padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--purple-light); margin-bottom: 14px; }
+  .grad { background: linear-gradient(90deg, var(--purple-light), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  .meta { font-size: 11px; color: var(--muted); margin-top: 5px; }
+  .meta span { color: var(--purple-light); }
+  .badge { background: var(--purple-dim); border: 1px solid rgba(161,0,255,0.35); border-radius: 999px; padding: 4px 14px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--purple-light); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  @media(max-width:750px){ .grid2,.grid3 { grid-template-columns:1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .panel.full { grid-column: 1/-1; }
+  .panel.span2 { grid-column: span 2; }
+
+  /* Progress */
+  .prog-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; color: var(--muted); }
+  .bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; margin-bottom: 14px; }
+  .bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--purple), var(--purple-light)); }
+
+  /* Tasks */
+  .task-list { display: flex; flex-direction: column; gap: 5px; }
+  .task { display: flex; align-items: center; gap: 9px; padding: 7px 9px; border-radius: 7px; border: 1px solid transparent; }
+  .task.done { background: rgba(34,197,94,0.05); border-color: rgba(34,197,94,0.18); }
+  .task.todo { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.06); }
+  .dot { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0; }
+  .dot.done { background: var(--green); }
+  .dot.todo { background: rgba(255,255,255,0.08); }
+  .task-label { flex: 1; font-size: 13px; }
+  .task-label .num { color: var(--muted); margin-right: 4px; font-size: 11px; }
+  .task-label .time { color: var(--muted); font-size: 11px; margin-left: 5px; }
+  .owner { font-size: 10px; padding: 2px 7px; border-radius: 999px; font-weight: 600; }
+  .owner-m { background: rgba(161,0,255,0.2); color: var(--purple-light); }
+  .owner-v { background: rgba(34,197,94,0.15); color: #86efac; }
+  .owner-both { background: rgba(255,255,255,0.06); color: var(--muted); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+
+  /* Criteri */
+  .crit-list { display: flex; flex-direction: column; gap: 10px; }
+  .crit-header { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 12px; }
+  .crit-pct { color: var(--purple-light); font-weight: 600; }
+  .cbar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+  .cbar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--purple), var(--purple-light)); }
+  .cbar-fill.warn { background: linear-gradient(90deg, var(--yellow), var(--purple)); }
+  .crit-note { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .crit-note.ok { color: rgba(34,197,94,0.7); }
+  .crit-note.warn { color: rgba(234,179,8,0.8); }
+
+  /* Skill evidence */
+  .ev-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ev-table th { text-align: left; color: var(--muted); font-weight: 500; padding: 5px 8px; border-bottom: 1px solid var(--border); }
+  .ev-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+  .ev-table td:first-child { color: var(--purple-light); white-space: nowrap; }
+  .ev-table td code { background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: monospace; }
+  .ev-table tr:last-child td { border-bottom: none; }
+
+  /* Flow */
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .flow-step { background: var(--purple-dim); border: 1px solid rgba(161,0,255,0.25); border-radius: 8px; padding: 7px 13px; font-size: 12px; text-align: center; }
+  .flow-step small { display: block; color: var(--muted); font-size: 10px; margin-top: 1px; }
+  .arrow { color: var(--purple); font-size: 14px; }
+
+  /* D list */
+  .d-list { display: flex; flex-direction: column; gap: 8px; }
+  .d-item { display: flex; align-items: flex-start; gap: 9px; padding: 9px 11px; border-radius: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); }
+  .d-item.done { border-color: rgba(34,197,94,0.22); background: rgba(34,197,94,0.04); }
+  .d-item.todo { border-color: rgba(234,179,8,0.22); background: rgba(234,179,8,0.04); }
+  .d-content small { color: var(--muted); font-size: 11px; }
+
+  /* GH project box */
+  .gh-steps { display: flex; flex-direction: column; gap: 6px; counter-reset: step; }
+  .gh-step { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; }
+  .gh-step::before { counter-increment: step; content: counter(step); background: var(--purple-dim); border: 1px solid rgba(161,0,255,0.3); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--purple-light); flex-shrink: 0; margin-top: 1px; }
+  .gh-step a { color: var(--purple-light); }
+  .gh-issues { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .issue-label { font-size: 11px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; display: flex; justify-content: space-between; }
+  .issue-label .i-owner { color: var(--muted); }
+
+  footer { text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.2); padding: 20px 0 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--purple-light);margin-bottom:7px">Accenture · Hagenthon 2026 · Tema 02</div>
+    <h1><span class="grad">Safe to Spend</span> · Dashboard</h1>
+    <div class="meta">Repo: <span>github.com/martiftts/safe-to-spend</span> &nbsp;·&nbsp; Team: <span>Martina + Vito</span> &nbsp;·&nbsp; Presentazione: <span>15:30</span></div>
+  </div>
+  <div class="badge">13 / 17 task completati</div>
+</div>
+
+<!-- Progress + Flow -->
+<div class="panel full" style="margin-bottom:20px">
+  <h2>Avanzamento complessivo</h2>
+  <div class="prog-row"><span>Task completati</span><span style="color:var(--green);font-weight:600">13 / 17 · 76%</span></div>
+  <div class="bar"><div class="bar-fill" style="width:76%"></div></div>
+  <div class="flow">
+    <div class="flow-step">👋 Welcome<br/><small>API key opt.</small></div>
+    <div class="arrow">→</div>
+    <div class="flow-step">📝 Questionario<br/><small>adattivo 6–7 dom.</small></div>
+    <div class="arrow">→</div>
+    <div class="flow-step">🔍 Step 1 Analyze<br/><small>safeToSpend</small></div>
+    <div class="arrow">→</div>
+    <div class="flow-step">🏷️ Step 2 Classify<br/><small>spendingProfile</small></div>
+    <div class="arrow">→</div>
+    <div class="flow-step">💡 Step 3 Advise<br/><small>canSpendOn/avoid</small></div>
+    <div class="arrow">→</div>
+    <div class="flow-step">📊 Profilo<br/><small>ProfilePage</small></div>
+  </div>
+</div>
+
+<div class="grid2">
+
+  <!-- Task board -->
+  <div class="panel" style="grid-column:1/-1">
+    <h2>Task board</h2>
+    <div class="task-list">
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#1</span>Setup Angular 22 + Tailwind v3</div><span class="owner owner-m">Martina</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#2</span>ARCHITECTURE.md + gap analysis agentica</div><span class="owner owner-both">Claude</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#3</span>Struttura repo (agents/, presentation/)</div><span class="owner owner-both">Claude</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#4</span>Modelli dati (question.model, profile.model)</div><span class="owner owner-both">Claude</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#5</span>QuestionnaireService — risposte adattive condizionali</div><span class="owner owner-both">Claude</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#6</span>ClaudeService — workflow 3 step + fallback locale</div><span class="owner owner-both">Claude</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#7</span>Prompt strutturati in agents/prompts/ (step1/2/3)</div><span class="owner owner-v">Claude + Vito</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#8</span>WelcomePage — landing + input API key opzionale</div><span class="owner owner-both">Claude</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#9</span>QuestionnairePage — wizard adattivo (domande condizionali)</div><span class="owner owner-both">Claude</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#10</span>ProfilePage — safeToSpend + canSpendOn/avoid in 2a persona</div><span class="owner owner-both">Claude</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#12</span>agents/workflow.md — Before/After Evidence (D02)</div><span class="owner owner-v">Claude + Vito</span></div>
+      <div class="task done"><div class="dot done">✓</div><div class="task-label"><span class="num">#14</span>presentation/index.html — slide Accenture-branded</div><span class="owner owner-both">Claude</span></div>
+      <hr class="divider"/>
+      <div class="task todo"><div class="dot todo"></div><div class="task-label"><span class="num">#11</span>Tailwind global styles — palette custom, responsive<span class="time">20 min</span></div><span class="owner owner-v">Vito</span></div>
+      <div class="task todo"><div class="dot todo"></div><div class="task-label"><span class="num">#13</span>Risk &amp; Clarity Note (D03) in README<span class="time">10 min</span></div><span class="owner owner-m">Martina</span></div>
+      <div class="task todo"><div class="dot todo"></div><div class="task-label"><span class="num">#15</span>README.md finale — setup + flusso agentico<span class="time">15 min</span></div><span class="owner owner-v">Vito</span></div>
+      <div class="task todo"><div class="dot todo"></div><div class="task-label"><span class="num">#16</span>Test manuale golden path + fix<span class="time">20 min</span></div><span class="owner owner-both">Entrambi</span></div>
+      <div class="task todo"><div class="dot todo"></div><div class="task-label"><span class="num">#17</span>Push finale + verifica repo pubblico<span class="time">5 min</span></div><span class="owner owner-both">Entrambi</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="grid3">
+
+  <!-- Deliverables -->
+  <div class="panel">
+    <h2>Deliverable tema</h2>
+    <div class="d-list">
+      <div class="d-item done"><div>✅</div><div class="d-content"><strong>D01 — User Difficulty Statement</strong><br/><small>README + CONTEXT.md. Marco, 34 anni, busta paga.</small></div></div>
+      <div class="d-item done"><div>✅</div><div class="d-content"><strong>D02 — Before/After Evidence</strong><br/><small>agents/workflow.md — €2.100 lordo → safeToSpend.</small></div></div>
+      <div class="d-item todo"><div>⚠️</div><div class="d-content"><strong>D03 — Risk &amp; Clarity Note</strong><br/><small>Da aggiungere in README (#13). Nessun consiglio finanziario.</small></div></div>
+    </div>
+  </div>
+
+  <!-- Criteri -->
+  <div class="panel">
+    <h2>Criteri di valutazione</h2>
+    <div class="crit-list">
+      <div>
+        <div class="crit-header"><span>Profondità agentica</span><span class="crit-pct">24%</span></div>
+        <div class="cbar"><div class="cbar-fill" style="width:92%"></div></div>
+        <div class="crit-note ok">✅ 3 step orchestrati, AgentState, fallback per step</div>
+      </div>
+      <div>
+        <div class="crit-header"><span>Qualità prompt</span><span class="crit-pct">19%</span></div>
+        <div class="cbar"><div class="cbar-fill" style="width:88%"></div></div>
+        <div class="crit-note ok">✅ JSON strutturato, vincoli, 2a persona, policy files</div>
+      </div>
+      <div>
+        <div class="crit-header"><span>Robustezza</span><span class="crit-pct">15%</span></div>
+        <div class="cbar"><div class="cbar-fill" style="width:85%"></div></div>
+        <div class="crit-note ok">✅ Timeout 15s, try/catch per step, fallback completo</div>
+      </div>
+      <div>
+        <div class="crit-header"><span>Efficienza token</span><span class="crit-pct">12%</span></div>
+        <div class="cbar"><div class="cbar-fill" style="width:80%"></div></div>
+        <div class="crit-note ok">✅ max_tokens 512, format output definito</div>
+      </div>
+      <div>
+        <div class="crit-header"><span>Qualità tecnica</span><span class="crit-pct">12%</span></div>
+        <div class="cbar"><div class="cbar-fill" style="width:78%"></div></div>
+        <div class="crit-note ok">✅ Angular 22 signals, lazy routing, Q adattivo</div>
+      </div>
+      <div>
+        <div class="crit-header"><span>Adeguatezza strumenti</span><span class="crit-pct">11%</span></div>
+        <div class="cbar"><div class="cbar-fill" style="width:90%"></div></div>
+        <div class="crit-note ok">✅ Angular + Claude Opus 5 + Tailwind</div>
+      </div>
+      <div>
+        <div class="crit-header"><span>Documentazione</span><span class="crit-pct">7%</span></div>
+        <div class="cbar"><div class="cbar-fill warn" style="width:50%"></div></div>
+        <div class="crit-note warn">⚠️ Manca README finale + D03 (#13 #15)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GitHub Project -->
+  <div class="panel">
+    <h2>GitHub Project — setup manuale</h2>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:10px">gh CLI non disponibile — crea il board in 2 minuti:</p>
+    <div class="gh-steps">
+      <div class="gh-step">Vai su <a href="https://github.com/martiftts/safe-to-spend" target="_blank">github.com/martiftts/safe-to-spend</a></div>
+      <div class="gh-step">Tab <strong>Projects</strong> → <strong>Link a project</strong> → <strong>New project</strong></div>
+      <div class="gh-step">Template <strong>Board</strong> · colonne: Todo / In Progress / Done</div>
+      <div class="gh-step">Crea questi issue e spostali in <em>Todo</em>:</div>
+    </div>
+    <div class="gh-issues">
+      <div class="issue-label">#11 Tailwind global styles <span class="i-owner">@vito</span></div>
+      <div class="issue-label">#13 Risk &amp; Clarity Note README <span class="i-owner">@martina</span></div>
+      <div class="issue-label">#15 README finale <span class="i-owner">@vito</span></div>
+      <div class="issue-label">#16 Test golden path <span class="i-owner">entrambi</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Claude API skill evidence -->
+<div class="panel" style="margin-bottom:20px">
+  <h2>Evidenze claude-api skill — come lo stiamo usando</h2>
+  <table class="ev-table">
+    <thead><tr><th>Linea guida skill</th><th>Implementazione nel progetto</th><th>File</th></tr></thead>
+    <tbody>
+      <tr><td>Modello default: claude-opus-5</td><td><code>const MODEL = 'claude-opus-5'</code></td><td>claude.service.ts:7</td></tr>
+      <tr><td>Adaptive thinking per compiti complessi</td><td><code>thinking: { type: 'adaptive' }</code> in ogni chiamata API</td><td>claude.service.ts:61</td></tr>
+      <tr><td>Raw fetch per browser Angular</td><td><code>anthropic-dangerous-direct-browser-access: 'true'</code> header</td><td>claude.service.ts:53</td></tr>
+      <tr><td>Timeout per evitare blocchi</td><td><code>AbortController</code> con <code>TIMEOUT_MS = 15000</code></td><td>claude.service.ts:9,41</td></tr>
+      <tr><td>Multi-step pipeline con stato esternalizzato</td><td><code>AgentState</code> passato da step1 → step2 → step3</td><td>profile.model.ts + claude.service.ts</td></tr>
+      <tr><td>Fallback se la chiamata API fallisce</td><td><code>try/catch</code> su ogni step con fallback locale completo</td><td>claude.service.ts:28-44</td></tr>
+      <tr><td>Prompt concisi (efficienza token)</td><td><code>max_tokens: 512</code>, output format JSON definito nel system prompt</td><td>claude.service.ts:60</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>Safe to Spend · Hagenthon · Accenture Application Engineering · 24 settembre 2026</footer>
+</body>
+</html>
