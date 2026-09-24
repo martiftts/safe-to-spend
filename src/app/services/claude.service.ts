@@ -12,6 +12,7 @@ type WorkflowStatus = 'idle' | 'step1' | 'step2' | 'step3' | 'done' | 'error';
 export class ClaudeService {
   readonly status = signal<WorkflowStatus>('idle');
   readonly error = signal<string | null>(null);
+  readonly profile = signal<UserProfile | null>(null);
 
   private apiKey = environment.claudeApiKey;
 
@@ -45,7 +46,9 @@ export class ClaudeService {
     }
 
     this.status.set('done');
-    return this.toProfile(state);
+    const result = this.toProfile(state);
+    this.profile.set(result);
+    return result;
   }
 
   private async callClaude(systemPrompt: string, userContent: string): Promise<string> {
