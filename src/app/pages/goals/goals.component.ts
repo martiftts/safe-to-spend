@@ -31,105 +31,86 @@ const CATEGORIE_LABEL: Record<Categoria, string> = {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-gray-50 px-4 py-10">
-      <div class="max-w-lg mx-auto">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Obiettivo</h1>
-        <p class="text-gray-600 mb-8">
-          Imposta cosa vuoi comprare, quanto costa e quando. Poi scegli tu quali categorie
-          puoi ridurre — nessuna è comprimibile per default.
+    <div class="page">
+      <div class="page-inner">
+
+        <p class="eyebrow mb-6">Safe to Spend · Obiettivo</p>
+        <h1 class="text-3xl font-bold mb-2">Cosa vuoi raggiungere?</h1>
+        <p class="text-muted mb-8 leading-relaxed">
+          Imposta importo e scadenza. Poi scegli tu le categorie su cui agire.
         </p>
 
         <!-- Obiettivo -->
-        <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-          <h2 class="font-semibold text-gray-900 mb-4">Cosa vuoi raggiungere?</h2>
+        <div class="card-dark p-5 mb-5">
+          <h2 class="card-section-label mb-4">Dettagli</h2>
           <div class="space-y-3">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">Cosa</label>
-              <input
-                type="text"
-                [(ngModel)]="goal.cosa"
-                placeholder="es. Moto, vacanza, fondo emergenza"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="label-dark">Cosa</label>
+              <input type="text" [(ngModel)]="goal.cosa"
+                     placeholder="Moto, vacanza, fondo emergenza…" class="input-dark">
             </div>
             <div class="flex gap-3">
               <div class="flex-1">
-                <label class="block text-sm text-gray-600 mb-1">Quanto costa (€)</label>
-                <input
-                  type="number"
-                  [(ngModel)]="goal.importo"
-                  min="0"
-                  placeholder="5000"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="label-dark">Importo (€)</label>
+                <input type="number" [(ngModel)]="goal.importo" min="0" placeholder="5000" class="input-dark">
               </div>
               <div class="flex-1">
-                <label class="block text-sm text-gray-600 mb-1">Entro (mesi)</label>
-                <input
-                  type="number"
-                  [(ngModel)]="goal.mesi"
-                  min="1"
-                  max="120"
-                  placeholder="12"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="label-dark">Entro (mesi)</label>
+                <input type="number" [(ngModel)]="goal.mesi" min="1" max="120" placeholder="12" class="input-dark">
               </div>
             </div>
             @if (goal.importo > 0 && goal.mesi > 0) {
-              <div class="bg-gray-50 rounded-lg p-3">
-                <p class="text-sm text-gray-600">
-                  Risparmio necessario:
-                  <span class="font-bold text-gray-900">
-                    € {{ (goal.importo / goal.mesi).toFixed(0) }}/mese
-                  </span>
-                </p>
-                <p class="text-sm text-gray-500 mt-0.5">
-                  Margine attuale: € {{ chain()?.margine?.toFixed(0) ?? '—' }}/mese
-                  @if (chain() && goal.importo > 0 && goal.mesi > 0) {
-                    <span [class.text-red-600]="(chain()!.margine) < (goal.importo / goal.mesi)"
-                          [class.text-green-600]="(chain()!.margine) >= (goal.importo / goal.mesi)">
-                      · {{ (chain()!.margine) >= (goal.importo / goal.mesi) ? 'raggiungibile' : 'serve uno sforzo' }}
+              <div class="rounded-xl p-3 flex justify-between items-center"
+                   style="background:rgba(161,0,255,0.08);border:1px solid rgba(161,0,255,0.25)">
+                <span class="text-xs text-faint">Risparmio necessario</span>
+                <div class="text-right">
+                  <span class="text-lg font-bold" style="color:var(--brand-light)">€ {{ (goal.importo / goal.mesi).toFixed(0) }}/mese</span>
+                  @if (chain()) {
+                    <span class="ml-2 text-xs font-medium"
+                          [style.color]="(chain()!.margine) >= (goal.importo / goal.mesi) ? 'var(--green)' : 'var(--rose)'">
+                      {{ (chain()!.margine) >= (goal.importo / goal.mesi) ? '✓ raggiungibile' : '⚠ serve uno sforzo' }}
                     </span>
                   }
-                </p>
+                </div>
               </div>
             }
           </div>
         </div>
 
-        <!-- Leve (categorie comprimibili) -->
+        <!-- Leve -->
         @if (banking.bankingData()) {
-          <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-            <h2 class="font-semibold text-gray-900 mb-1">Quali categorie puoi ridurre?</h2>
-            <p class="text-xs text-gray-500 mb-4">Marca solo quelle che sei disposto a considerare. Nessuna è selezionata per default.</p>
+          <div class="card-dark p-5 mb-5">
+            <h2 class="card-section-label mb-1">Leve di risparmio</h2>
+            <p class="text-xs text-faint mb-4">Seleziona solo le categorie su cui sei disposto ad agire.</p>
             <div class="space-y-4">
               @for (spesa of banking.bankingData()!.spesaPerCategoria; track spesa.categoria) {
                 <div>
-                  <div class="flex items-center gap-3 mb-1">
-                    <input
-                      type="checkbox"
-                      [id]="'leva-' + spesa.categoria"
-                      [checked]="isLevaAttiva(spesa.categoria)"
-                      (change)="toggleLeva(spesa.categoria, spesa.importoMensile)"
-                      class="w-4 h-4 text-blue-600 rounded">
-                    <label [for]="'leva-' + spesa.categoria" class="flex-1 flex justify-between text-sm">
-                      <span class="font-medium text-gray-800">{{ categoriaNome(spesa.categoria) }}</span>
-                      <span class="text-gray-500">€ {{ spesa.importoMensile.toFixed(0) }}/mese</span>
-                    </label>
+                  <div class="flex items-center gap-3 mb-1.5">
+                    <button type="button"
+                            (click)="toggleLeva(spesa.categoria, spesa.importoMensile)"
+                            class="w-5 h-5 rounded flex items-center justify-center flex-shrink-0
+                                   active:scale-[0.85] transition-all"
+                            [style.background]="isLevaAttiva(spesa.categoria) ? 'var(--brand)' : 'rgba(255,255,255,0.1)'"
+                            [style.border]="isLevaAttiva(spesa.categoria) ? '1px solid var(--brand)' : '1px solid rgba(255,255,255,0.2)'">
+                      @if (isLevaAttiva(spesa.categoria)) {
+                        <span class="text-white text-xs leading-none">✓</span>
+                      }
+                    </button>
+                    <div class="flex-1 flex justify-between">
+                      <span class="text-sm font-medium text-muted">{{ categoriaNome(spesa.categoria) }}</span>
+                      <span class="text-xs text-faint">€ {{ spesa.importoMensile.toFixed(0) }}/mese</span>
+                    </div>
                   </div>
                   @if (isLevaAttiva(spesa.categoria)) {
-                    <div class="ml-7">
-                      <input
-                        type="range"
-                        min="0"
-                        [max]="spesa.importoMensile"
-                        step="10"
-                        [value]="getRiduzione(spesa.categoria)"
-                        (input)="setRiduzione(spesa.categoria, +$any($event.target).value)"
-                        class="w-full accent-blue-600">
-                      <div class="flex justify-between text-xs text-gray-500 mt-0.5">
-                        <span>€ 0</span>
-                        <span class="text-blue-600 font-medium">
-                          - € {{ getRiduzione(spesa.categoria).toFixed(0) }}/mese
-                        </span>
-                        <span>€ {{ spesa.importoMensile.toFixed(0) }}</span>
+                    <div class="ml-8">
+                      <input type="range" min="0" [max]="spesa.importoMensile" step="10"
+                             [value]="getRiduzione(spesa.categoria)"
+                             (input)="setRiduzione(spesa.categoria, +$any($event.target).value)"
+                             class="w-full accent-[#A100FF]">
+                      <div class="flex justify-between text-xs mt-1">
+                        <span class="text-faint">€ 0</span>
+                        <span class="font-semibold" style="color:var(--rose)">- € {{ getRiduzione(spesa.categoria).toFixed(0) }}/mese</span>
+                        <span class="text-faint">€ {{ spesa.importoMensile.toFixed(0) }}</span>
                       </div>
                     </div>
                   }
@@ -139,13 +120,9 @@ const CATEGORIE_LABEL: Record<Categoria, string> = {
           </div>
         }
 
-        <!-- CTA -->
-        <button
-          type="button"
-          [disabled]="!goal.cosa || goal.importo <= 0 || goal.mesi <= 0"
-          (click)="vaAlSimulatore()"
-          class="w-full bg-blue-600 disabled:bg-gray-300 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
-          Mostrami come arrivarci
+        <button type="button" [disabled]="!goal.cosa || goal.importo <= 0 || goal.mesi <= 0"
+                (click)="vaAlSimulatore()" class="btn-primary">
+          Mostrami come arrivarci →
         </button>
       </div>
     </div>

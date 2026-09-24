@@ -8,26 +8,30 @@ import { BankingService } from '../../services/banking.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-gray-50 px-4 py-10">
-      <div class="max-w-lg mx-auto">
+    <div class="page">
+      <div class="page-inner">
 
-        <!-- Se si sta guardando un profilo di esempio, va detto. -->
+        <p class="eyebrow mb-6">Safe to Spend · Cruscotto</p>
+
+        <!-- Banner scorciatoia -->
         @if (banking.entryMode() === 'scorciatoia') {
-          <div class="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <p class="text-sm text-amber-900">
+          <div class="rounded-2xl mb-5 px-4 py-3 flex items-center justify-between gap-3"
+               style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25)">
+            <p class="text-sm" style="color:rgba(251,191,36,0.85)">
               Profilo di esempio: <strong>{{ banking.preset()?.label }}</strong>
             </p>
-            <button type="button" (click)="ricomincia()" class="shrink-0 text-sm font-medium text-amber-900 underline">
+            <button type="button" (click)="ricomincia()"
+                    class="btn-inline shrink-0 active:scale-[0.97] transition-transform">
               Fai il percorso
             </button>
           </div>
         }
 
-        <!-- Nessun profilo: si torna all'ingresso invece di mostrare una pagina vuota. -->
+        <!-- Nessun profilo -->
         @if (!banking.hasProfile()) {
-          <div class="rounded-xl border border-gray-200 bg-white p-6 text-center">
-            <p class="text-gray-600 mb-4">Non ci sono ancora dati da mostrare.</p>
-            <button type="button" (click)="ricomincia()" class="bg-gray-900 text-white font-semibold py-2.5 px-5 rounded-xl">
+          <div class="card-dark p-8 text-center">
+            <p class="text-muted mb-4">Non ci sono ancora dati da mostrare.</p>
+            <button type="button" (click)="ricomincia()" class="btn-primary" style="width:auto;padding-left:2rem;padding-right:2rem">
               Inizia
             </button>
           </div>
@@ -35,48 +39,49 @@ import { BankingService } from '../../services/banking.service';
 
         <!-- Budget giornaliero -->
         @if (chain()) {
-          <div class="rounded-2xl p-6 mb-6 text-white"
-               [class.bg-green-600]="chain()!.margine >= 0"
-               [class.bg-red-600]="chain()!.margine < 0">
-            <p class="text-sm opacity-80 mb-1">Budget giornaliero disponibile</p>
-            <p class="text-4xl font-bold">
-              € {{ chain()!.budgetGiornaliero.toFixed(0) }}
-              <span class="text-lg font-normal opacity-80">/giorno</span>
+          <div class="rounded-2xl p-6 mb-5"
+               [style.background]="chain()!.margine >= 0 ? 'linear-gradient(135deg,rgba(74,222,128,0.15),rgba(74,222,128,0.05))' : 'linear-gradient(135deg,rgba(255,80,160,0.15),rgba(255,80,160,0.05))'"
+               [style.border]="chain()!.margine >= 0 ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,80,160,0.3)'">
+            <p class="text-xs uppercase tracking-widest mb-2"
+               [style.color]="chain()!.margine >= 0 ? 'var(--green)' : 'var(--rose)'">
+              Budget giornaliero disponibile
             </p>
-            <p class="text-sm opacity-80 mt-1">
-              Margine mensile: € {{ chain()!.margine.toFixed(0) }}
+            <p class="text-5xl font-bold tracking-tight"
+               [style.color]="chain()!.margine >= 0 ? 'var(--green)' : 'var(--rose)'">
+              € {{ chain()!.budgetGiornaliero.toFixed(0) }}<span class="text-xl font-normal opacity-50">/g</span>
+            </p>
+            <p class="text-sm mt-2 text-muted">
+              Margine mensile: <strong class="text-white">€ {{ chain()!.margine.toFixed(0) }}</strong>
             </p>
           </div>
 
           <!-- Catena a scalini -->
-          <div class="bg-white rounded-xl border border-gray-200 mb-6">
-            <div class="px-4 py-3 border-b border-gray-100">
-              <h2 class="font-semibold text-gray-900">Come l'abbiamo calcolato</h2>
+          <div class="card-dark mb-5 overflow-hidden">
+            <div class="card-dark-header">
+              <h2 class="card-section-label">Come l'abbiamo calcolato</h2>
             </div>
             @for (step of chain()!.steps; track step.label; let i = $index) {
-              <div class="border-b border-gray-100 last:border-0">
-                <button
-                  type="button"
-                  (click)="toggleStep(i)"
-                  class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors">
-                  <span class="text-sm font-medium text-gray-800">{{ step.label }}</span>
+              <div style="border-bottom:1px solid var(--line)" class="last:border-0">
+                <button type="button" (click)="toggleStep(i)"
+                        class="w-full flex items-center justify-between px-5 py-3.5 text-left
+                               hover:bg-white/5 active:scale-[0.99] transition-all">
+                  <span class="text-sm text-muted">{{ step.label }}</span>
                   <div class="flex items-center gap-3">
-                    <span
-                      class="text-sm font-semibold"
-                      [class.text-red-600]="step.amount < 0"
-                      [class.text-green-600]="step.amount >= 0">
+                    <span class="text-sm font-semibold"
+                          [style.color]="step.amount < 0 ? 'var(--rose)' : 'var(--green)'">
                       {{ step.amount >= 0 ? '+' : '' }}€ {{ step.amount.toFixed(0) }}
                     </span>
-                    <span class="text-gray-400 text-xs">{{ expandedSteps().has(i) ? '▲' : '▼' }}</span>
+                    <span class="text-faint text-xs">{{ expandedSteps().has(i) ? '▲' : '▼' }}</span>
                   </div>
                 </button>
                 @if (expandedSteps().has(i)) {
-                  <div class="px-4 pb-3 bg-gray-50">
-                    <p class="text-xs text-gray-500 mb-1">Totale progressivo:</p>
-                    <p class="text-sm font-bold" [class.text-red-700]="step.running < 0" [class.text-gray-900]="step.running >= 0">
+                  <div class="px-5 pb-4" style="background:rgba(255,255,255,0.02)">
+                    <p class="text-xs text-faint mb-1">Progressivo:</p>
+                    <p class="text-sm font-bold"
+                       [style.color]="step.running < 0 ? 'var(--rose)' : '#fff'">
                       € {{ step.running.toFixed(2) }}
                     </p>
-                    <p class="text-xs text-gray-400 mt-1 font-mono">{{ step.formula }}</p>
+                    <p class="text-xs text-faint mt-1 font-mono">{{ step.formula }}</p>
                   </div>
                 }
               </div>
@@ -85,60 +90,47 @@ import { BankingService } from '../../services/banking.service';
 
           <!-- Indicatori -->
           @if (indicators()) {
-            <div class="bg-white rounded-xl border border-gray-200 mb-6">
-              <div class="px-4 py-3 border-b border-gray-100">
-                <h2 class="font-semibold text-gray-900">Indicatori di approfondimento</h2>
+            <div class="card-dark mb-5 overflow-hidden">
+              <div class="card-dark-header">
+                <h2 class="card-section-label">Indicatori</h2>
               </div>
-              <div class="divide-y divide-gray-100">
-                <div class="px-4 py-3 flex justify-between">
-                  <span class="text-sm text-gray-600">Reddito equivalente OCSE</span>
-                  <span class="text-sm font-semibold text-gray-900">
+              <div>
+                <div class="px-5 py-3.5 flex justify-between items-center" style="border-bottom:1px solid var(--line)">
+                  <span class="text-sm text-muted">Reddito equivalente OCSE</span>
+                  <span class="text-sm font-semibold text-white">
                     € {{ indicators()!.oecd.redditoEquivalente.toFixed(0) }}/mese
-                    <span class="text-gray-400 font-normal">(x{{ indicators()!.oecd.coefficiente.toFixed(1) }})</span>
+                    <span class="text-faint font-normal text-xs">×{{ indicators()!.oecd.coefficiente.toFixed(1) }}</span>
                   </span>
                 </div>
-                <div class="px-4 py-3 flex justify-between">
-                  <span class="text-sm text-gray-600">Quota impegnata in rate</span>
-                  <span class="text-sm font-semibold"
-                        [class.text-red-600]="indicators()!.debito.quotaImpegnata > 0.33"
-                        [class.text-gray-900]="indicators()!.debito.quotaImpegnata <= 0.33">
+                <div class="px-5 py-3.5 flex justify-between items-center" style="border-bottom:1px solid var(--line)">
+                  <span class="text-sm text-muted">Quota impegnata in rate</span>
+                  <span class="text-sm font-bold"
+                        [style.color]="indicators()!.debito.quotaImpegnata > 0.33 ? 'var(--rose)' : 'var(--green)'">
                     {{ (indicators()!.debito.quotaImpegnata * 100).toFixed(0) }}%
                   </span>
                 </div>
                 @if (indicators()!.debito.liberazioneMesi > 0) {
-                  <div class="px-4 py-3 flex justify-between">
-                    <span class="text-sm text-gray-600">Liberazione dalle rate tra</span>
-                    <span class="text-sm font-semibold text-gray-900">
-                      {{ indicators()!.debito.liberazioneMesi }} mesi
-                    </span>
+                  <div class="px-5 py-3.5 flex justify-between items-center" style="border-bottom:1px solid var(--line)">
+                    <span class="text-sm text-muted">Liberazione dalle rate tra</span>
+                    <span class="text-sm font-semibold text-white">{{ indicators()!.debito.liberazioneMesi }} mesi</span>
                   </div>
                 }
-                <div class="px-4 py-3 flex justify-between">
-                  <span class="text-sm text-gray-600">Saldo reale (al netto degli impegni)</span>
-                  <span class="text-sm font-semibold"
-                        [class.text-red-600]="indicators()!.bilancio.saldoReale < 0"
-                        [class.text-gray-900]="indicators()!.bilancio.saldoReale >= 0">
+                <div class="px-5 py-3.5 flex justify-between items-center">
+                  <span class="text-sm text-muted">Saldo reale</span>
+                  <span class="text-sm font-bold"
+                        [style.color]="indicators()!.bilancio.saldoReale < 0 ? 'var(--rose)' : '#fff'">
                     € {{ indicators()!.bilancio.saldoReale.toFixed(0) }}
                   </span>
                 </div>
               </div>
             </div>
           }
-        }
 
-        <!-- CTA -->
-        @if (banking.hasProfile()) {
-          <button
-            type="button"
-            (click)="router.navigate(['/goals'])"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
-            Imposta un obiettivo
+          <!-- CTA -->
+          <button type="button" (click)="router.navigate(['/goals'])" class="btn-primary mb-3">
+            Imposta un obiettivo →
           </button>
-
-          <button
-            type="button"
-            (click)="ricomincia()"
-            class="w-full mt-3 text-sm text-gray-500 hover:text-gray-800">
+          <button type="button" (click)="ricomincia()" class="btn-inline w-full text-center text-sm py-2">
             Svuota e ricomincia
           </button>
         }
