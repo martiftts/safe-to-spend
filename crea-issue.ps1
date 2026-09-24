@@ -169,6 +169,55 @@ Poi marca **lui** quali categorie considera comprimibili, con uno slider ciascun
 '@
     },
     @{
+        title = 'B13 - Inserimento dati da zero, profili richiamabili dalla home'
+        body  = @'
+## Perche'
+
+Oggi i quattro profili sono l'unico modo per entrare nel flusso. Ma il prodotto che
+presentiamo parte dai dati della persona, non da un profilo preconfezionato: la
+selezione all'inizio fa sembrare l'app una demo di se stessa.
+
+Allo stesso tempo i profili servono, in demo e in sviluppo, per vedere risultati veri
+senza compilare tutto a mano ogni volta. Cambiano ruolo, non spariscono.
+
+## Cosa fare
+
+**1. Togliere i quattro pulsanti dal flusso principale**
+
+Il percorso predefinito diventa l'inserimento dei propri dati da zero: nucleo, redditi,
+debiti, spese fisse, saldo, spese future.
+
+**2. Richiamo dei profili dalla home page**
+
+Sulla home resta un punto, secondario rispetto al pulsante principale, da cui caricare
+uno dei quattro profili e arrivare direttamente ai risultati calcolati.
+
+- Non deve competere visivamente con l'ingresso normale: l'azione primaria e' "inizia",
+  i profili sono un'alternativa dichiarata
+- Ogni profilo mostra una riga che dice cosa rappresenta, non solo il nome
+- Caricarne uno porta al cruscotto con i numeri gia' calcolati, saltando l'inserimento
+
+**3. Ripartire da zero**
+
+Da qualsiasi punto si deve poter svuotare tutto e ricominciare, senza ricaricare la pagina.
+
+## Accettazione
+
+- [ ] Il flusso predefinito non presenta alcun profilo preconfezionato
+- [ ] Dalla home si carica un profilo e si arriva al cruscotto con i numeri calcolati
+- [ ] I quattro profili producono quattro esiti visibilmente diversi
+- [ ] Il profilo a margine negativo resta fra i quattro
+- [ ] Esiste un modo per azzerare e ricominciare
+- [ ] `npm run build` verde
+
+## Dipende da
+
+B1 (schemi) e B5 (profili sintetici), entrambi chiusi.
+
+**Stima:** 40 min
+'@
+    },
+    @{
         title = 'B12 - Simulatore'
         body  = @'
 Ricalcolo in tempo reale della data di arrivo al variare degli slider.
