@@ -3,102 +3,644 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Safe to Spend · Demo</title>
+<title>Safe to Spend · Hagenthon</title>
 <style>
   :root {
     --purple: #A100FF;
     --purple-light: #BE82FF;
-    --ink: #0A0014;
+    --purple-dark: #460073;
+    --rose: #FF50A0;
+    --green: #4ade80;
+    --bg: #050008;
+    --muted: rgba(255,255,255,0.62);
+    --faint: rgba(255,255,255,0.38);
+    --line: rgba(255,255,255,0.12);
+    --panel: rgba(255,255,255,0.03);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
   body {
-    background: #050008;
-    color: #fff;
-    font-family: "Inter", system-ui, sans-serif;
-    line-height: 1.6;
+    background: var(--bg); color: #fff;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+    scroll-snap-type: y mandatory; overflow-y: scroll; height: 100vh;
   }
   .slide {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 48px 24px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    scroll-snap-align: start; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 64px 56px 88px; max-width: 1180px; margin: 0 auto; position: relative;
   }
-  .brand { font-size: 12px; text-transform: uppercase; letter-spacing: 0.25em; color: var(--purple-light); margin-bottom: 16px; }
-  h1 { font-size: 48px; font-weight: 700; letter-spacing: -0.03em; }
-  h2 { font-size: 32px; font-weight: 700; margin-bottom: 24px; }
+  .eyebrow {
+    display: inline-block; align-self: flex-start;
+    border: 1px solid var(--line); background: rgba(255,255,255,0.05);
+    border-radius: 999px; padding: 5px 15px; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.25em; color: var(--muted); margin-bottom: 24px;
+  }
+  h1 { font-size: 54px; font-weight: 700; letter-spacing: -0.03em; margin: 0 0 16px; line-height: 1.08; }
+  h2 { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 20px; line-height: 1.15; }
+  h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--purple-light); margin: 0 0 12px; font-weight: 600; }
+  p { color: var(--muted); margin: 0 0 16px; max-width: 74ch; }
+  .lead { font-size: 19px; color: rgba(255,255,255,0.82); }
   .grad { background: linear-gradient(90deg, var(--purple-light), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  p { color: rgba(255,255,255,0.7); max-width: 600px; margin: 16px auto 0; font-size: 18px; }
-  .tag { display: inline-block; border: 1px solid rgba(161,0,255,0.4); background: rgba(161,0,255,0.1); border-radius: 999px; padding: 6px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--purple-light); margin-bottom: 24px; }
-  .flow { display: flex; gap: 16px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
-  .step { background: rgba(161,0,255,0.1); border: 1px solid rgba(161,0,255,0.3); border-radius: 12px; padding: 16px 24px; font-size: 14px; }
-  .arrow { color: var(--purple); font-size: 20px; }
-  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 700px; margin-top: 32px; }
-  .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; text-align: left; }
-  .card h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--purple-light); margin-bottom: 8px; }
-  .card p { font-size: 14px; margin: 0; }
-  footer { text-align: center; padding: 32px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.25); }
-  footer span { color: var(--purple); }
+  strong { color: #fff; font-weight: 600; }
+  em { color: var(--purple-light); font-style: normal; }
+
+  .brand { position: fixed; top: 22px; left: 32px; right: 32px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; letter-spacing: -0.02em; z-index: 50; pointer-events: none; mix-blend-mode: difference; }
+  .brand .mark { color: var(--purple); }
+  .brand .org { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: rgba(255,255,255,0.45); font-weight: 600; text-align: right; }
+  .counter { position: fixed; bottom: 22px; right: 32px; z-index: 50; font-size: 11px; letter-spacing: 0.2em; color: var(--faint); font-variant-numeric: tabular-nums; pointer-events: none; }
+  .hint { position: fixed; bottom: 22px; left: 32px; z-index: 50; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.22); pointer-events: none; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .panel { border: 1px solid var(--line); background: var(--panel); border-radius: 16px; padding: 22px 24px; }
+  .panel.accent { border-color: rgba(161,0,255,0.3); background: rgba(161,0,255,0.07); }
+  .panel.warn { border-color: rgba(255,80,160,0.25); background: rgba(255,80,160,0.06); }
+  .panel h4 { margin: 0 0 9px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+  .panel p { font-size: 13.5px; margin: 0; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean li { position: relative; padding-left: 22px; color: var(--muted); margin-bottom: 10px; font-size: 15px; }
+  ul.clean li::before { content: "›"; position: absolute; left: 0; color: var(--purple); font-weight: 700; }
+  ul.clean.no li::before { content: "×"; color: var(--rose); }
+  ul.clean.yes li::before { content: "✓"; color: var(--green); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--faint); font-weight: 600; padding: 0 14px 10px 0; border-bottom: 1px solid var(--line); }
+  td { padding: 12px 14px 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); color: var(--muted); vertical-align: top; }
+  td strong { color: #fff; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 13px; }
+  .tag { display: inline-block; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; padding: 2px 9px; border-radius: 999px; border: 1px solid rgba(161,0,255,0.35); background: rgba(161,0,255,0.12); color: var(--purple-light); }
+  .tag.sm { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); color: var(--muted); }
+  .tag.det { border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.1); color: var(--green); }
+
+  /* catena delle sottrazioni */
+  .chain { display: flex; flex-direction: column; gap: 6px; max-width: 620px; }
+  .ch-row { display: flex; align-items: baseline; justify-content: space-between; padding: 11px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); }
+  .ch-row .l { font-size: 14.5px; }
+  .ch-row .v { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 15px; }
+  .ch-row.sub .v { color: var(--rose); }
+  .ch-row.tot { border-color: rgba(161,0,255,0.4); background: rgba(161,0,255,0.09); }
+  .ch-row.tot .v { color: var(--purple-light); font-size: 17px; }
+  .ch-row.final { border-color: rgba(74,222,128,0.35); background: rgba(74,222,128,0.08); }
+  .ch-row.final .v { color: var(--green); font-size: 22px; }
+  .ch-note { font-size: 12px; color: var(--faint); padding: 0 16px; }
+
+  /* flow */
+  .flow { display: flex; flex-direction: column; gap: 8px; }
+  .node { border: 1px solid var(--line); background: var(--panel); border-radius: 11px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .node.ai { border-color: rgba(161,0,255,0.4); background: rgba(161,0,255,0.09); }
+  .node.det { border-color: rgba(74,222,128,0.28); background: rgba(74,222,128,0.06); }
+  .node .n-name { font-weight: 600; font-size: 15px; }
+  .node .n-sub { font-size: 12px; color: var(--faint); }
+  .arrow { color: var(--faint); font-size: 16px; padding-left: 10px; }
+
+  /* mockup */
+  .phone { width: 262px; border: 1px solid rgba(255,255,255,0.16); border-radius: 26px; background: #0d0616; padding: 12px 10px; flex-shrink: 0; box-shadow: 0 24px 60px rgba(0,0,0,0.55); }
+  .phone .bar { height: 4px; width: 60px; background: rgba(255,255,255,0.18); border-radius: 99px; margin: 2px auto 13px; }
+  .screen { background: #fbfaff; border-radius: 16px; padding: 17px 14px; color: #14101c; min-height: 396px; display: flex; flex-direction: column; }
+  .screen .s-eyebrow { font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: #8b7fa3; font-weight: 700; }
+  .screen h5 { font-size: 16px; margin: 7px 0 9px; font-weight: 700; letter-spacing: -0.02em; color: #14101c; line-height: 1.22; }
+  .screen p { font-size: 11px; color: #5c5370; margin: 0 0 11px; line-height: 1.5; }
+  .row-tog { display: flex; align-items: center; justify-content: space-between; border: 1px solid #e3ddf0; border-radius: 9px; padding: 9px 10px; margin-bottom: 7px; background: #fff; }
+  .row-tog .rt { font-size: 11px; font-weight: 600; color: #2f2740; }
+  .row-tog .rs { font-size: 9.5px; color: #8b7fa3; }
+  .tog { width: 30px; height: 17px; border-radius: 99px; background: #ded7ee; position: relative; flex-shrink: 0; }
+  .tog.on { background: var(--purple); }
+  .tog::after { content: ""; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 99px; background: #fff; }
+  .tog.on::after { left: auto; right: 2px; }
+  .cat { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+  .cat .cn { font-size: 10.5px; color: #2f2740; width: 68px; flex-shrink: 0; }
+  .cat .cb { height: 7px; border-radius: 99px; background: var(--purple); opacity: 0.75; }
+  .cat .cv { font-size: 10px; color: #6a6180; margin-left: auto; font-variant-numeric: tabular-nums; }
+  .big-num { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; color: var(--purple-dark); line-height: 1; margin: 3px 0 1px; }
+  .mini-chain { font-size: 10px; color: #6a6180; line-height: 1.85; font-variant-numeric: tabular-nums; }
+  .mini-chain .neg { color: #c2185b; }
+  .mini-chain .eq { color: var(--purple-dark); font-weight: 700; }
+  .btn { background: #14101c; color: #fff; border-radius: 9px; padding: 10px; text-align: center; font-size: 11.5px; font-weight: 600; margin-top: auto; }
+  .slider { margin-bottom: 11px; }
+  .slider .sl-top { display: flex; justify-content: space-between; font-size: 10.5px; color: #2f2740; margin-bottom: 4px; }
+  .slider .sl-track { height: 5px; border-radius: 99px; background: #e3ddf0; position: relative; }
+  .slider .sl-fill { height: 5px; border-radius: 99px; background: var(--purple); }
+  .slider .sl-knob { width: 12px; height: 12px; border-radius: 99px; background: #fff; border: 2px solid var(--purple); position: absolute; top: -4px; }
+  .res { background: #f2ecff; border: 1px solid #ddd0f5; border-radius: 10px; padding: 11px 12px; margin-top: 4px; }
+  .res .r1 { font-size: 10px; color: #6a6180; }
+  .res .r2 { font-size: 15px; font-weight: 700; color: var(--purple-dark); }
+  .disc { font-size: 8.5px; color: #8b7fa3; line-height: 1.5; margin-top: 9px; }
+  .mock-caption { font-size: 11px; color: var(--faint); text-align: center; margin-top: 11px; letter-spacing: 0.05em; max-width: 262px; }
+  .mocks { display: flex; gap: 22px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .vs .box { border-radius: 14px; padding: 20px 22px; border: 1px solid; }
+  .vs .before { border-color: rgba(255,80,160,0.25); background: rgba(255,80,160,0.05); }
+  .vs .after { border-color: rgba(74,222,128,0.25); background: rgba(74,222,128,0.05); }
+  .vs .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; font-weight: 700; margin-bottom: 12px; }
+  .vs .before .label { color: var(--rose); }
+  .vs .after .label { color: var(--green); }
+  .vs p { font-size: 14.5px; }
+
+  @media (max-width: 900px) {
+    .cols, .cols-3, .vs { grid-template-columns: 1fr; }
+    .slide { padding: 48px 24px 80px; }
+    h1 { font-size: 34px; } h2 { font-size: 26px; }
+  }
+  @media print {
+    body { background: #fff; color: #111; height: auto; overflow: visible; }
+    .slide { min-height: auto; page-break-after: always; padding: 30px; }
+    .brand, .counter, .hint { display: none; }
+  }
 </style>
 </head>
 <body>
 
-<!-- SLIDE 1: Title -->
+<div class="brand">
+  <span>Safe to Spend<span class="mark">&gt;</span></span>
+  <span class="org">Accenture<br />Application Engineering</span>
+</div>
+<div class="counter" id="counter">01</div>
+<div class="hint">← → per navigare</div>
+
+<!-- 01 ─────────────────────────────────────────────────────── -->
 <section class="slide">
-  <div class="brand">Accenture · Application Engineering · Hagenthon 2026</div>
-  <h1><span class="grad">Safe to Spend</span></h1>
-  <p>Educazione finanziaria adattiva per chi non capisce la propria busta paga.</p>
-  <p style="margin-top:8px;font-size:14px;color:rgba(255,255,255,0.4)">Tema 02 · Inclusione Finanziaria</p>
+  <span class="eyebrow">Hagenthon · Tema 02 · Inclusione finanziaria</span>
+  <h1>Safe to <span class="grad">Spend</span></h1>
+  <p class="lead" style="font-size:23px;max-width:60ch;">
+    L'app della tua banca conosce già i tuoi conti, il mutuo e le rate.
+    Le usa per rispondere alla sola domanda che governa le decisioni di tutti i giorni.
+  </p>
+  <p style="margin-top:26px;font-size:28px;color:#fff;font-weight:600;letter-spacing:-0.02em;">
+    «Quanto posso spendere <span class="grad">oggi</span>?»
+  </p>
 </section>
 
-<!-- SLIDE 2: Il problema -->
+<!-- 02 ─────────────────────────────────────────────────────── -->
 <section class="slide">
-  <span class="tag">Il problema</span>
-  <h2>Marco non sa quanti soldi ha</h2>
-  <p>34 anni, operaio. Riceve la busta paga, vede numeri che non capisce — INPS, IRPEF, TFR — e non riesce a calcolare quanto può davvero spendere.</p>
+  <span class="eyebrow">Il problema</span>
+  <h2>Il saldo mente</h2>
   <div class="cols">
-    <div class="card">
-      <h3>Prima</h3>
-      <p>Retribuzione lorda €2.100. Trattenute varie. Marco non capisce le voci e non prende decisioni.</p>
+    <div>
+      <p class="lead">Quasi tutti decidono se possono permettersi una spesa <strong>guardando il saldo</strong>.
+      È l'errore più diffuso dell'alfabetizzazione finanziaria di base.</p>
+      <p>Quel numero contiene soldi già promessi: rate in scadenza, bollette in arrivo,
+      la quota della spesa che si sa già di dover affrontare fra qualche mese.</p>
+      <p>Nessuna app della banca lo dice. Mostra il saldo e lascia fare il resto a te.</p>
     </div>
-    <div class="card">
-      <h3>Dopo</h3>
-      <p>"Il tuo safe to spend è ~€1.400. INPS e IRPEF non sono tuoi. Il TFR è un risparmio forzato."</p>
+    <div>
+      <div class="panel" style="padding:28px;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--faint);">Quello che vedi</div>
+        <div style="font-size:42px;font-weight:700;letter-spacing:-0.03em;margin:6px 0 22px;">1.840 €</div>
+        <div style="height:1px;background:var(--line);margin-bottom:22px;"></div>
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--faint);">Già promessi entro fine mese</div>
+        <div style="font-size:26px;font-weight:700;color:var(--rose);letter-spacing:-0.02em;margin:6px 0 22px;">− 1.550 €</div>
+        <div style="height:1px;background:var(--line);margin-bottom:22px;"></div>
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--purple-light);">Quello che puoi davvero usare</div>
+        <div style="font-size:42px;font-weight:700;color:var(--green);letter-spacing:-0.03em;margin-top:6px;">290 €</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- SLIDE 3: Il workflow agentico -->
+<!-- 03 ─────────────────────────────────────────────────────── -->
 <section class="slide">
-  <span class="tag">Come funziona</span>
-  <h2>Workflow <span class="grad">agentico</span> 3 step</h2>
+  <span class="eyebrow">La soluzione</span>
+  <h2>Cinque passi, nessun dato<br />da inserire a mano</h2>
   <div class="flow">
-    <div class="step">📝 Questionario<br/><small>6 domande</small></div>
-    <div class="arrow">→</div>
-    <div class="step">🔍 Analyze<br/><small>pain point</small></div>
-    <div class="arrow">→</div>
-    <div class="step">🏷️ Classify<br/><small>archetype</small></div>
-    <div class="arrow">→</div>
-    <div class="step">📚 Educate<br/><small>3 micro-lezioni</small></div>
+    <div class="node"><span><span class="n-name">1 · Consenso</span><br /><span class="n-sub">un interruttore per fonte, non un consenso unico</span></span><span class="tag sm">revocabile</span></div>
+    <div class="arrow">↓</div>
+    <div class="node det"><span><span class="n-name">2 · Caricamento automatico</span><br /><span class="n-sub">movimenti, mutuo, piani rateizzati, debiti futuri</span></span><span class="tag det">deterministico</span></div>
+    <div class="arrow">↓</div>
+    <div class="node det"><span><span class="n-name">3 · Categorizzazione</span><br /><span class="n-sub">etichette descrittive, ricorrenze rilevate</span></span><span class="tag det">deterministico</span></div>
+    <div class="arrow">↓</div>
+    <div class="node"><span><span class="n-name">4 · Spese future</span><br /><span class="n-sub">l'unica cosa che l'app non può sapere: glielo chiede</span></span></div>
+    <div class="arrow">↓</div>
+    <div class="node"><span><span class="n-name">5 · Obiettivo e simulazione</span><br /><span class="n-sub">l'utente sceglie le leve, l'app calcola</span></span><span class="tag sm">su richiesta</span></div>
   </div>
-  <p>Ogni step ha prompt strutturato, output JSON e vincoli espliciti. Fallback locale se Claude non risponde.</p>
+  <p style="margin-top:26px;font-size:15px;">
+    <strong>L'app della banca sa già quasi tutto.</strong> L'unica domanda che le serve fare
+    riguarda il futuro: quali spese hai già in programma, e cosa vorresti comprare.
+  </p>
 </section>
 
-<!-- SLIDE 4: Stack & repo -->
+<!-- 04 ─────────────────────────────────────────────────────── -->
 <section class="slide">
-  <span class="tag">Stack & Consegna</span>
-  <h2>Tecnologie usate</h2>
-  <div class="cols">
-    <div class="card"><h3>Frontend</h3><p>Angular 22 + Tailwind CSS v3</p></div>
-    <div class="card"><h3>AI</h3><p>Claude API — orchestrazione multi-step</p></div>
-    <div class="card"><h3>Repo</h3><p>github.com/martiftts/safe-to-spend</p></div>
-    <div class="card"><h3>Agentic</h3><p>3 prompt strutturati · stato esternalizzato · fallback</p></div>
+  <span class="eyebrow">Le schermate · 1</span>
+  <h2>Consenso e lettura</h2>
+  <div class="mocks">
+    <div>
+      <div class="phone"><div class="bar"></div><div class="screen">
+        <span class="s-eyebrow">Passo 1</span>
+        <h5>Quali dati posso leggere?</h5>
+        <p>Scegli fonte per fonte. Puoi cambiare idea in qualsiasi momento.</p>
+        <div class="row-tog"><div><div class="rt">Conto principale</div><div class="rs">Movimenti degli ultimi 6 mesi</div></div><div class="tog on"></div></div>
+        <div class="row-tog"><div><div class="rt">Mutuo casa</div><div class="rs">Rata, scadenza, capitale residuo</div></div><div class="tog on"></div></div>
+        <div class="row-tog"><div><div class="rt">Finanziamento auto</div><div class="rs">Rata e rate residue</div></div><div class="tog on"></div></div>
+        <div class="row-tog"><div><div class="rt">Conto secondario</div><div class="rs">Non collegato</div></div><div class="tog"></div></div>
+        <div class="btn">Continua</div>
+      </div></div>
+      <div class="mock-caption">Ogni voce dice cosa viene letto e a cosa serve</div>
+    </div>
+
+    <div>
+      <div class="phone"><div class="bar"></div><div class="screen">
+        <span class="s-eyebrow">Passo 3</span>
+        <h5>Le tue uscite, per tipologia</h5>
+        <p>Media degli ultimi sei mesi.</p>
+        <div class="cat"><span class="cn">Casa</span><span class="cb" style="width:96px;"></span><span class="cv">480 €</span></div>
+        <div class="cat"><span class="cn">Alimentari</span><span class="cb" style="width:104px;"></span><span class="cv">520 €</span></div>
+        <div class="cat"><span class="cn">Tempo libero</span><span class="cb" style="width:36px;"></span><span class="cv">180 €</span></div>
+        <div class="cat"><span class="cn">Trasporti</span><span class="cb" style="width:29px;"></span><span class="cv">145 €</span></div>
+        <div class="cat"><span class="cn">Altro</span><span class="cb" style="width:18px;"></span><span class="cv">90 €</span></div>
+        <div class="cat"><span class="cn">Salute</span><span class="cb" style="width:12px;"></span><span class="cv">60 €</span></div>
+        <div class="cat"><span class="cn">Abbonamenti</span><span class="cb" style="width:8px;"></span><span class="cv">42 €</span></div>
+        <div style="margin-top:12px;background:#f2ecff;border-radius:9px;padding:9px 11px;">
+          <div style="font-size:10px;color:#6a6180;">Ricorrenze rilevate</div>
+          <div style="font-size:11px;color:#2f2740;font-weight:600;">4 addebiti automatici · 42 € al mese</div>
+        </div>
+      </div></div>
+      <div class="mock-caption">Etichette descrittive. Mai «superfluo» o «voluttuario».</div>
+    </div>
+
+    <div>
+      <div class="phone"><div class="bar"></div><div class="screen">
+        <span class="s-eyebrow">Passo 4</span>
+        <h5>Hai spese già in programma?</h5>
+        <p>È l'unica cosa che non posso sapere dai tuoi conti.</p>
+        <div class="row-tog"><div><div class="rt">Vacanza estiva</div><div class="rs">1.200 € · fra 6 mesi</div></div><div style="font-size:11px;font-weight:700;color:var(--purple-dark);">200 €<span style="font-weight:400;color:#8b7fa3;">/mese</span></div></div>
+        <div class="row-tog"><div><div class="rt">Dentista</div><div class="rs">420 € · fra 6 mesi</div></div><div style="font-size:11px;font-weight:700;color:var(--purple-dark);">70 €<span style="font-weight:400;color:#8b7fa3;">/mese</span></div></div>
+        <div style="border:1px dashed #ddd5ec;border-radius:9px;padding:9px;text-align:center;font-size:11px;color:#8b7fa3;">+ Aggiungi una spesa</div>
+        <div style="margin-top:12px;background:#f2ecff;border-radius:9px;padding:10px 11px;">
+          <div style="font-size:10px;color:#6a6180;line-height:1.5;">Da oggi <strong style="color:#2f2740;">270 € al mese</strong> sono già di settembre e di dicembre. Sono sul conto, ma non sono disponibili.</div>
+        </div>
+      </div></div>
+      <div class="mock-caption">L'accantonamento, spiegato mentre accade</div>
+    </div>
   </div>
 </section>
 
-<footer>Safe to Spend · <span>Hagenthon</span> · Accenture Application Engineering · 24 settembre 2026</footer>
+<!-- 05 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Il cuore del calcolo</span>
+  <h2>La catena delle sottrazioni</h2>
+  <div class="cols" style="grid-template-columns:1.15fr 0.85fr;">
+    <div>
+      <div class="chain">
+        <div class="ch-row"><span class="l">Reddito netto del nucleo</span><span class="v">1.950 €</span></div>
+        <div class="ch-row sub"><span class="l">Rate e debiti <span style="color:var(--faint);font-size:12px;">mutuo 620 · auto 180</span></span><span class="v">− 800 €</span></div>
+        <div class="ch-row sub"><span class="l">Spese fisse <span style="color:var(--faint);font-size:12px;">utenze, abbonamenti</span></span><span class="v">− 480 €</span></div>
+        <div class="ch-row sub"><span class="l">Accantonamento spese future</span><span class="v">− 270 €</span></div>
+        <div class="ch-note">↳ il pezzo che nessuno calcola</div>
+        <div class="ch-row tot"><span class="l">Margine per il vivere quotidiano</span><span class="v">400 €</span></div>
+        <div class="ch-row"><span class="l" style="color:var(--faint);">÷ giorni del mese</span><span class="v" style="color:var(--faint);">30</span></div>
+        <div class="ch-row final"><span class="l">Budget di oggi</span><span class="v">13,33 €</span></div>
+      </div>
+    </div>
+    <div>
+      <h3>Ogni scalino è visibile</h3>
+      <p>L'utente vede il proprio reddito ridursi passo dopo passo, e impara la differenza fra
+      <em>reddito</em> e <em>reddito disponibile</em> guardandola accadere.</p>
+      <div class="panel accent" style="margin-top:20px;">
+        <h4>L'accantonamento</h4>
+        <p>Per ogni spesa futura: <span class="mono">importo ÷ mesi mancanti</span>.
+        È il <em>sinking fund</em>, fra le idee più utili e meno conosciute della finanza personale.</p>
+        <p style="margin-top:10px;">Trasforma «a giugno devo trovare 1.200 €» in
+        «da oggi 200 € al mese sono già di giugno, non tuoi».</p>
+      </div>
+      <div class="panel" style="margin-top:16px;">
+        <h4>Il ricalcolo</h4>
+        <p>Il budget non è fisso: dopo ogni spesa registrata diventa
+        <span class="mono">margine residuo ÷ giorni residui</span>, e l'app mostra di quanto è cambiato e perché.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Le schermate · 2</span>
+  <h2>L'obiettivo, e chi sceglie le leve</h2>
+  <div class="mocks">
+    <div>
+      <div class="phone"><div class="bar"></div><div class="screen">
+        <span class="s-eyebrow">Il tuo quadro</span>
+        <div class="big-num">13,33 €</div>
+        <p style="margin-top:1px;">di spazio oggi</p>
+        <div style="background:#fff;border:1px solid #ece7f6;border-radius:10px;padding:11px 12px;margin-bottom:9px;">
+          <div class="mini-chain">
+            Reddito <span style="float:right;">1.950</span><br />
+            <span class="neg">Rate e debiti <span style="float:right;">− 800</span></span><br />
+            <span class="neg">Spese fisse <span style="float:right;">− 480</span></span><br />
+            <span class="neg">Accantonamento <span style="float:right;">− 270</span></span><br />
+            <span class="eq">Margine <span style="float:right;">400</span></span>
+          </div>
+        </div>
+        <div style="background:#f2ecff;border-radius:9px;padding:9px 11px;">
+          <div style="font-size:10px;color:#6a6180;line-height:1.5;">A marzo 2028 finisce la rata dell'auto: si liberano <strong style="color:#2f2740;">180 € al mese</strong>.</div>
+        </div>
+        <div class="btn">Come l'abbiamo calcolato</div>
+      </div></div>
+      <div class="mock-caption">Numero, significato e formula: sempre insieme</div>
+    </div>
+
+    <div>
+      <div class="phone"><div class="bar"></div><div class="screen">
+        <span class="s-eyebrow">Passo 5</span>
+        <h5>Cosa vorresti comprare?</h5>
+        <div style="border:1px solid #e3ddf0;border-radius:9px;padding:10px 11px;background:#fff;margin-bottom:9px;">
+          <div style="font-size:11.5px;font-weight:600;color:#2f2740;">Cambiare l'auto</div>
+          <div style="font-size:10px;color:#8b7fa3;">6.000 € · entro un anno</div>
+        </div>
+        <p style="margin-top:4px;">Quali spese te la sentiresti di comprimere, e di quanto? <strong style="color:#2f2740;">Decidi tu.</strong></p>
+        <div class="slider">
+          <div class="sl-top"><span>Tempo libero</span><span>− 60 € su 180</span></div>
+          <div class="sl-track"><div class="sl-fill" style="width:33%;"></div><div class="sl-knob" style="left:31%;"></div></div>
+        </div>
+        <div class="slider">
+          <div class="sl-top"><span>Abbonamenti</span><span>− 25 € su 42</span></div>
+          <div class="sl-track"><div class="sl-fill" style="width:60%;"></div><div class="sl-knob" style="left:57%;"></div></div>
+        </div>
+        <div class="slider">
+          <div class="sl-top" style="color:#a79bbd;"><span>Alimentari</span><span>non comprimibile</span></div>
+          <div class="sl-track"><div class="sl-knob" style="left:0;"></div></div>
+        </div>
+        <div class="btn" style="margin-top:8px;">Mostrami come arrivarci</div>
+      </div></div>
+      <div class="mock-caption">Nessuna categoria è comprimibile per default</div>
+    </div>
+
+    <div>
+      <div class="phone"><div class="bar"></div><div class="screen">
+        <span class="s-eyebrow">Simulazione</span>
+        <h5>Con le tue scelte</h5>
+        <div class="res" style="margin-bottom:9px;">
+          <div class="r1">A ritmo invariato · 400 € al mese</div>
+          <div class="r2">Marzo 2028</div>
+        </div>
+        <div class="res" style="background:#eafaf0;border-color:#c7ecd6;">
+          <div class="r1">Con le riduzioni che hai indicato · 485 € al mese</div>
+          <div class="r2" style="color:#177245;">Dicembre 2027</div>
+        </div>
+        <p style="margin-top:12px;font-size:11px;">Tre mesi prima. Il divario per arrivarci entro l'anno resta di <strong style="color:#2f2740;">15 € al mese</strong>.</p>
+        <div class="disc" style="margin-top:auto;border-top:1px solid #ece7f6;padding-top:9px;">
+          Questi numeri derivano dall'obiettivo e dai limiti che hai indicato tu.
+          Non sono una raccomandazione finanziaria.
+        </div>
+      </div></div>
+      <div class="mock-caption">L'app calcola. La scelta resta dell'utente.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Il confine</span>
+  <h2>Il consiglio finanziario è vietato.<br />Il calcolo no.</h2>
+  <p class="lead">Il tema proibisce «indicazioni su cosa comprare, vendere o scegliere».
+  È il vincolo più facile da violare per un prodotto come questo — e quello su cui abbiamo
+  scritto la politica <strong>prima</strong> del codice.</p>
+  <div class="cols" style="margin-top:26px;">
+    <div class="panel warn">
+      <h4>Cosa l'app non fa mai</h4>
+      <ul class="clean no" style="margin-top:12px;">
+        <li>Proporre di sua iniziativa cosa tagliare</li>
+        <li>Nominare una categoria che l'utente non ha dichiarato comprimibile</li>
+        <li>Etichettare una spesa come superflua o voluttuaria</li>
+        <li>Nominare banche, prodotti o strumenti</li>
+      </ul>
+    </div>
+    <div class="panel accent">
+      <h4>Le tre condizioni del calcolo</h4>
+      <ul class="clean yes" style="margin-top:12px;">
+        <li>L'utente ha <strong>fissato l'obiettivo</strong></li>
+        <li>L'utente ha <strong>dichiarato le leve</strong> e i loro limiti</li>
+        <li>L'utente ha <strong>chiesto</strong> il risultato, con un'azione esplicita registrata in stato</li>
+      </ul>
+      <p style="margin-top:14px;font-size:14px;color:rgba(255,255,255,0.8);">
+        Un utente che fissa un obiettivo e dichiara lui cosa è disposto a comprimere
+        <em>non sta chiedendo un consiglio: sta chiedendo un calcolo.</em>
+      </p>
+    </div>
+  </div>
+  <p style="margin-top:22px;font-size:14px;">
+    Il guardrail ha due modalità. Quella permissiva vale <strong>solo</strong> sulla schermata del
+    simulatore, solo dopo la richiesta esplicita, e continua comunque a bloccare moralismo,
+    cifre non verificate e categorie non dichiarate.
+  </p>
+</section>
+
+<!-- 08 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Architettura</span>
+  <h2>L'AI sta agli estremi.<br />Il centro è codice.</h2>
+  <div class="flow" style="max-width:860px;">
+    <div class="node ai"><span><span class="n-name">Interpretazione dell'ingresso</span><br /><span class="n-sub">«pago 340 al mese per la macchina, finisce fra due anni e mezzo»</span></span><span class="tag">claude-opus-5</span></div>
+    <div class="arrow">↓</div>
+    <div class="node det"><span><span class="n-name">Motore di calcolo</span><br /><span class="n-sub">catena, accantonamento, indicatori, simulazione</span></span><span class="tag det">nessun LLM qui dentro</span></div>
+    <div class="arrow">↓</div>
+    <div class="node ai"><span><span class="n-name">Narrazione</span><br /><span class="n-sub">riceve i numeri già calcolati, non li produce</span></span><span class="tag">claude-haiku-4-5 · effort low</span></div>
+    <div class="arrow">↓</div>
+    <div class="node det"><span><span class="n-name">Grounding + guardrail</span><br /><span class="n-sub">ogni cifra esiste nei calcoli? nessuna frase vietata?</span></span><span class="tag det">deterministico · zero token</span></div>
+  </div>
+  <div class="cols-3" style="margin-top:28px;">
+    <div class="panel"><h4>L'AI non tocca un numero</h4><p>Gli agenti lavorano solo sul linguaggio. Ogni cifra mostrata viene dal motore deterministico, ed è verificata prima di raggiungere lo schermo.</p></div>
+    <div class="panel"><h4>Model tiering</h4><p>Il modello capace solo dove serve inferenza ambigua. Sulla narrazione, che è ad alto volume e vincolata, uno più piccolo con effort basso.</p></div>
+    <div class="panel"><h4>Stato esternalizzato</h4><p>Nessun agente conserva stato. Tutto vive in un oggetto serializzato: ogni passo è riproducibile e la sessione si può riprendere.</p></div>
+  </div>
+</section>
+
+<!-- 09 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Le politiche</span>
+  <h2>Ogni regola è scritta<br />una volta sola</h2>
+  <div class="cols">
+    <div>
+      <p>Quattro politiche versionate in <span class="mono">agents/policies/</span>,
+      ciascuna proprietaria della propria regola. I prompt le <strong>citano per nome</strong>, non le riscrivono.</p>
+      <table style="margin-top:18px;">
+        <tr><td class="mono" style="color:var(--purple-light);">no-advice</td><td>Il confine fra spiegare e consigliare</td></tr>
+        <tr><td class="mono" style="color:var(--purple-light);">no-moralizing</td><td>Nessun giudizio sulle spese, in nessuna direzione</td></tr>
+        <tr><td class="mono" style="color:var(--purple-light);">numeric-grounding</td><td>Nessuna cifra non calcolata</td></tr>
+        <tr><td class="mono" style="color:var(--purple-light);">escalation</td><td>Fallback e limiti di iterazione</td></tr>
+      </table>
+      <p style="margin-top:18px;font-size:14px;">Le stesse regole esistono una volta sola anche
+      nel codice, in un file di costanti composto nei system prompt.</p>
+    </div>
+    <div>
+      <div class="vs" style="grid-template-columns:1fr;gap:14px;">
+        <div class="box before">
+          <div class="label">Bloccato dal filtro</div>
+          <ul class="clean no">
+            <li>«Dovresti ridurre le spese di tempo libero»</li>
+            <li>«Spese voluttuarie: 180 €»</li>
+            <li>«Bravo, sei sotto budget!»</li>
+            <li>«Il TFR è il 6,91% della retribuzione»</li>
+          </ul>
+        </div>
+        <div class="box after">
+          <div class="label">Ammesso</div>
+          <ul class="clean yes">
+            <li>«Hai speso 62 €. Ti restano 140 € per 9 giorni.»</li>
+            <li>«Tempo libero: 180 € al mese»</li>
+            <li>«Il ritmo di oggi è 22 €, ieri era 18 €.»</li>
+            <li>«Sono coperti fino a 100.000 € per banca»</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:16px;font-size:13.5px;"><strong>Anche la lode è giudizio.</strong>
+      Un sistema che si compiace quando spendi poco è lo stesso che ti rimprovera quando spendi molto:
+      ha solo cambiato segno.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Robustezza</span>
+  <h2>Nessun ciclo illimitato,<br />nessuna degradazione nascosta</h2>
+  <table>
+    <tr><th style="width:44%;">Limite</th><th style="width:16%;">Valore</th><th>Al superamento</th></tr>
+    <tr><td>Timeout per chiamata</td><td><strong>15 s</strong></td><td>Percorso deterministico</td></tr>
+    <tr><td>Retry su rete o 5xx</td><td><strong>2</strong></td><td>Backoff esponenziale, poi fallback</td></tr>
+    <tr><td>Retry su 4xx</td><td><strong>0</strong></td><td>Una chiave mancante non si risolve ritentando</td></tr>
+    <tr><td>Rigenerazione su output invalido o vietato</td><td><strong>1</strong></td><td>Poi testo deterministico</td></tr>
+    <tr><td>Passi degradati tollerati</td><td><strong>2 su 3</strong></td><td>Risultato mostrato <em>con avviso esplicito</em></td></tr>
+  </table>
+  <div class="cols" style="margin-top:26px;">
+    <div class="panel accent">
+      <h4>Il calcolo non dipende dall'AI</h4>
+      <p>Il motore è codice deterministico e testato: il budget giornaliero, l'accantonamento e la
+      simulazione funzionano anche senza una sola chiamata di rete. L'AI aggiunge il linguaggio, non i numeri.</p>
+    </div>
+    <div class="panel">
+      <h4>La degradazione si dichiara</h4>
+      <p>«Una parte di questi contenuti è generica: non siamo riusciti a personalizzarla.»
+      Non è una scusa — è l'informazione che serve a sapere quanto fidarsi di ciò che si legge.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Il caso difficile</span>
+  <h2>Quando il margine è negativo</h2>
+  <div class="cols">
+    <div>
+      <p class="lead">Le uscite fisse superano le entrate. È il momento in cui il paternalismo
+      rientra più facilmente, ed è uno dei profili di test <strong>obbligatori</strong>.</p>
+      <div class="vs" style="grid-template-columns:1fr;gap:14px;margin-top:22px;">
+        <div class="box before">
+          <div class="label">Mai</div>
+          <p>«Attenzione: stai spendendo più di quanto guadagni. Dovresti rivedere le tue spese.»</p>
+        </div>
+        <div class="box after">
+          <div class="label">Sempre</div>
+          <p>«Le tue uscite fisse superano le entrate di 40 € al mese. Ecco dove va ogni euro.
+          A marzo 2028 la rata dell'auto finisce e si liberano 180 € al mese.»</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>Perché conta</h3>
+      <p>Chi ha margini stretti riceve già abbastanza giudizi. Un'app che ne aggiunge uno
+      viene chiusa e non riaperta — e con lei l'unico strumento che quella persona aveva.</p>
+      <p>L'unico elemento prospettico ammesso è un fatto aritmetico già noto:
+      la <em>timeline di liberazione</em> delle rate. Nessuna esortazione, nessuna consolazione,
+      nessun piano suggerito.</p>
+      <div class="panel" style="margin-top:20px;">
+        <p style="font-size:14px;">Non tutti i problemi di denaro sono problemi di educazione finanziaria.
+        Trattarli come tali è la forma di paternalismo più comune del settore.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Rischi e limiti</span>
+  <h2>Cosa non funziona ancora<br />come dovrebbe</h2>
+  <div class="cols-3">
+    <div class="panel"><h4>Grounding parziale</h4><p>Il controllo verifica che una cifra sia calcolata, non che sia associata alla frase giusta. Un valore corretto nel posto sbagliato passerebbe.</p></div>
+    <div class="panel"><h4>Categorizzazione imperfetta</h4><p>Da un movimento bancario non si può sapere se una spesa era necessaria. Per questo l'app non lo giudica — e per questo le leve le sceglie l'utente.</p></div>
+    <div class="panel"><h4>La chiave nel browser</h4><p>Accettabile per un prototipo con inserimento a runtime. In produzione la chiamata passerebbe da un proxy server-side.</p></div>
+    <div class="panel"><h4>Dati sintetici</h4><p>Nessuna integrazione bancaria reale: i quattro profili sono costruiti a mano, verosimili ma inventati. Nessun dato identificativo.</p></div>
+    <div class="panel"><h4>Nessuna memoria</h4><p>Ogni sessione riparte da zero. Un percorso vero richiederebbe di sapere cosa è già stato spiegato.</p></div>
+    <div class="panel"><h4>Stima, non previsione</h4><p>La simulazione assume entrate e uscite stabili. Un imprevisto cambia la data, e l'app lo dice.</p></div>
+  </div>
+  <p style="margin-top:24px;font-size:15px;">Un limite dichiarato bene vale più di un limite nascosto male.</p>
+</section>
+
+<!-- 13 ─────────────────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">Nota sul processo</span>
+  <h2>Dove ha lavorato l'AI,<br />dove siamo intervenuti noi</h2>
+  <div class="cols">
+    <div>
+      <p>L'AI ha scritto gran parte del codice, delle politiche e della documentazione,
+      guidata da istruzioni versionate in <span class="mono">agents/</span>: una specifica eseguibile,
+      non commenti.</p>
+      <h3 style="margin-top:26px;">Validazione</h3>
+      <ul class="clean">
+        <li>Test unitari sul motore, con valori calcolati a mano</li>
+        <li>Un test per ogni caso dichiarato nelle sezioni <em>Verifica</em> delle politiche</li>
+        <li>Quattro profili sintetici, incluso il margine negativo</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Gli interventi umani decisivi</h3>
+      <ul class="clean">
+        <li><strong>Togliere un agente.</strong> Un componente faceva aritmetica: un LLM lì era costo e fragilità, non capacità.</li>
+        <li><strong>Rifiutare le cifre non verificabili.</strong> Il modello conosceva aliquote e contributi in modo approssimativo: l'elenco dei fatti è rimasto corto di proposito.</li>
+        <li><strong>Riscrivere il confine fra spiegare e consigliare.</strong> Era enunciato in tre punti diversi, in tre modi diversi.</li>
+        <li><strong>Togliere la propensione al rischio</strong> dalla raccolta dati: era l'unico campo senza uso educativo, e faceva somigliare l'onboarding a una profilazione da consulenza.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 14 ─────────────────────────────────────────────────────── -->
+<section class="slide" style="justify-content:center;align-items:flex-start;">
+  <h1 style="max-width:20ch;">L'app <span class="grad">calcola</span>.<br />La scelta resta tua.</h1>
+  <p class="lead" style="font-size:20px;max-width:58ch;margin-top:12px;">
+    E il confine non lo garantisce una buona intenzione:
+    lo garantisce un filtro che si può vedere mentre blocca.
+  </p>
+  <div style="margin-top:44px;display:flex;gap:10px;flex-wrap:wrap;">
+    <span class="tag sm">Angular 22</span>
+    <span class="tag sm">Motore deterministico</span>
+    <span class="tag sm">2 modelli</span>
+    <span class="tag sm">4 politiche</span>
+    <span class="tag sm">4 profili di test</span>
+  </div>
+  <p style="margin-top:52px;font-size:11px;text-transform:uppercase;letter-spacing:0.22em;color:var(--faint);">
+    Hagenthon <span style="color:var(--purple);">&gt;</span> Accenture Application Engineering
+  </p>
+</section>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const counter = document.getElementById('counter');
+  const pad = n => String(n).padStart(2, '0');
+  function current() {
+    const mid = window.scrollY + window.innerHeight / 2;
+    return slides.findIndex(s => s.offsetTop <= mid && s.offsetTop + s.offsetHeight > mid);
+  }
+  function render() {
+    const i = Math.max(0, current());
+    counter.textContent = pad(i + 1) + ' / ' + pad(slides.length);
+  }
+  function go(d) {
+    const i = Math.max(0, current());
+    const t = slides[Math.min(slides.length - 1, Math.max(0, i + d))];
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+  }
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)) { e.preventDefault(); go(1); }
+    if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') { e.preventDefault(); slides[0].scrollIntoView({behavior:'smooth'}); }
+    if (e.key === 'End') { e.preventDefault(); slides[slides.length-1].scrollIntoView({behavior:'smooth'}); }
+  });
+  window.addEventListener('scroll', render, { passive: true });
+  render();
+</script>
+
 </body>
 </html>
