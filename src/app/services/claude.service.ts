@@ -92,7 +92,7 @@ export class ClaudeService {
   private async step1(state: AgentState): Promise<AgentState['step1']> {
     const system = `Sei un assistente per la gestione delle spese personali. NON dai consigli finanziari né di investimento.
 Analizza le informazioni sul nucleo familiare, entrate e uscite dell'utente.
-Rispondi SOLO con JSON: {"safeToSpend":"<importo stimato es. circa €700/mese>","summary":"<2 frasi in seconda persona, parla direttamente all'utente usando 'tu'>"}
+Rispondi SOLO con JSON: {"safeToSpend":"<importo stimato es. circa €700/mese>","summary":"<2 frasi in seconda persona, usa 'tu'>"}
 Max 60 parole. Nessun testo aggiuntivo.`;
 
     const user = JSON.stringify({ answers: state.answers });
@@ -103,26 +103,22 @@ Max 60 parole. Nessun testo aggiuntivo.`;
   private async step2(state: AgentState): Promise<AgentState['step2']> {
     const system = `Classifica il profilo di spesa dell'utente.
 - tightly_budgeted: margine ridotto, spese fisse vicine alle entrate
-- balanced: buon equilibrio, piccolo margine di risparmio
+- balanced: buon equilibrio, piccolo margine disponibile
 - comfortable: ampio margine, può permettersi flessibilità
 Rispondi SOLO con JSON: {"spendingProfile":"tightly_budgeted"|"balanced"|"comfortable","rationale":"<1 frase in seconda persona, max 25 parole>"}
 Nessun testo aggiuntivo.`;
 
-    const user = JSON.stringify({
-      answers: state.answers,
-      safeToSpend: state.step1?.safeToSpend,
-    });
+    const user = JSON.stringify({ answers: state.answers, safeToSpend: state.step1?.safeToSpend });
     const text = await this.callClaude(system, user);
     return this.parseJson<AgentState['step2']>(text);
   }
 
   private async step3(state: AgentState): Promise<AgentState['step3']> {
     const system = `Sei un assistente per la gestione delle spese quotidiane. NON dai consigli finanziari né di investimento.
-Genera consigli pratici sulle spese per questo utente specifico.
-Usa il "tu" — parla direttamente, mai in terza persona.
+Genera consigli pratici sulle spese per questo utente. Usa il "tu" — parla direttamente, mai in terza persona.
 Rispondi SOLO con JSON:
 {"canSpendOn":["<cosa puoi permetterti 1>","<cosa puoi permetterti 2>","<cosa puoi permetterti 3>"],"avoid":["<cosa evitare 1>","<cosa evitare 2>","<cosa evitare 3>"],"nextStep":"<1 frase: azione concreta che puoi fare subito>"}
-Sii specifico al nucleo familiare e al margine disponibile. NON consigliare prodotti, banche o investimenti. Nessun testo aggiuntivo.`;
+Sii specifico al nucleo familiare e al margine. NON consigliare prodotti, banche o investimenti. Nessun testo aggiuntivo.`;
 
     const user = JSON.stringify({
       answers: state.answers,
@@ -150,8 +146,7 @@ Sii specifico al nucleo familiare e al margine disponibile. NON consigliare prod
     const safe = this.estimateSafeToSpend(state.answers);
     const family = state.answers[0]?.answer ?? 'solo';
     const familyLabel: Record<string, string> = {
-      solo: 'vivi da solo',
-      coppia: 'vivete in coppia',
+      solo: 'vivi da solo', coppia: 'vivete in coppia',
       'famiglia-piccola': 'avete una famiglia con figli',
       'famiglia-grande': 'avete una famiglia numerosa',
     };
@@ -171,12 +166,11 @@ Sii specifico al nucleo familiare e al margine disponibile. NON consigliare prod
       rationale = 'Il tuo margine è ridotto: ogni spesa va valutata con attenzione.';
     } else if (safe < 800) {
       spendingProfile = 'balanced';
-      rationale = 'Hai un buon equilibrio: puoi permetterti qualche spesa extra con giudizio.';
+      rationale = 'Hai un buon equilibrio: puoi permetterti qualche extra con giudizio.';
     } else {
       spendingProfile = 'comfortable';
-      rationale = 'Hai ampio margine disponibile: puoi permetterti flessibilità nelle spese.';
+      rationale = 'Hai ampio margine: puoi permetterti flessibilità nelle scelte.';
     }
-
     return { spendingProfile, rationale };
   }
 
@@ -189,36 +183,36 @@ Sii specifico al nucleo familiare e al margine disponibile. NON consigliare prod
     const adviceMap: Record<SpendingProfile, { canSpendOn: string[]; avoid: string[] }> = {
       tightly_budgeted: {
         canSpendOn: [
-          'Spesa alimentare settimanale pianificata con lista',
-          'Trasporti necessari (abbonamento vs. singoli biglietti)',
-          'Una piccola uscita mensile programmata',
+          'Spesa alimentare pianificata con lista settimanale',
+          'Trasporti necessari (valuta abbonamento vs. biglietti singoli)',
+          'Una piccola uscita mensile programmata in anticipo',
         ],
         avoid: [
-          'Acquisti impulsivi fuori budget',
+          'Acquisti impulsivi fuori dal budget stabilito',
           hasFuturePlans ? 'Spese non pianificate: stai accantonando per quella spesa futura' : 'Spese voluttuarie non essenziali',
           family === 'solo' ? 'Abbonamenti che non usi davvero' : 'Spese extra per i bambini non pianificate',
         ],
       },
       balanced: {
         canSpendOn: [
-          'Uscite sociali una-due volte a settimana',
-          'Piccoli acquisti per la casa o il benessere',
-          hasFuturePlans ? 'Accantonamento mensile per la spesa futura pianificata' : 'Un piccolo risparmio mensile',
+          'Uscite sociali una o due volte a settimana',
+          'Piccoli acquisti per la casa o il benessere personale',
+          hasFuturePlans ? 'Accantonamento mensile per la spesa futura pianificata' : 'Un piccolo risparmio mensile automatico',
         ],
         avoid: [
           'Acquisti grandi non pianificati questo mese',
           'Rate nuove se hai già impegni in corso',
-          'Spese d\'impulso online (notifiche di offerte)',
+          'Spese d\'impulso online (disattiva le notifiche delle offerte)',
         ],
       },
       comfortable: {
         canSpendOn: [
-          'Uscite, tempo libero e svago senza senso di colpa',
-          hasFuturePlans ? 'Accantona per la spesa futura: hai il margine' : 'Un fondo emergenze mensile',
+          'Uscite, svago e tempo libero senza senso di colpa',
+          hasFuturePlans ? 'Accantonamento per la spesa futura: hai il margine per farlo' : 'Un fondo emergenze mensile',
           family.includes('famiglia') ? 'Attività ed esperienze per tutta la famiglia' : 'Esperienze e viaggi programmati',
         ],
         avoid: [
-          'Spese ricorrenti dimenticate (abbonamenti zombie)',
+          'Abbonamenti dimenticati attivi (controllali questo mese)',
           'Finanziamenti a rate per cose che puoi acquistare subito',
           'Spese non consapevoli: traccia anche tu per capire dove va il denaro',
         ],
@@ -231,10 +225,7 @@ Sii specifico al nucleo familiare e al margine disponibile. NON consigliare prod
       comfortable: 'Controlla gli abbonamenti attivi: probabilmente ne paghi qualcuno che non usi più.',
     };
 
-    return {
-      ...adviceMap[profile],
-      nextStep: nextStepMap[profile],
-    };
+    return { ...adviceMap[profile], nextStep: nextStepMap[profile] };
   }
 
   private toProfile(state: AgentState): UserProfile {
