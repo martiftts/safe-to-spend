@@ -5,10 +5,16 @@
   "compilerOptions": {
     "types": [
       "vitest/globals"
-    ]
+    ],
+    /* Stesso alias di tsconfig.app.json: i test importano gli schemi
+       dalla stessa fonte dell'applicazione. */
+    "paths": {
+      "@schemas/*": ["./agents/schemas/*"]
+    }
   },
   "include": [
     "src/**/*.d.ts",
-    "src/**/*.spec.ts"
+    "src/**/*.spec.ts",
+    "agents/schemas/**/*.ts"
   ]
 }
