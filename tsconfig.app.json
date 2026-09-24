@@ -3,10 +3,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": []
+    "types": [],
+    /* Gli schemi di output degli step vivono in agents/schemas e sono
+       importati da qui. Fonte unica di verita': non ne esiste una copia
+       dentro src/. Vedi agents/README.md. */
+    "paths": {
+      "@schemas/*": ["./agents/schemas/*"]
+    }
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "agents/schemas/**/*.ts"
   ],
   "exclude": [
     "src/**/*.spec.ts"

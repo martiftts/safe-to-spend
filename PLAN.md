@@ -56,17 +56,26 @@ src/                       🟡 app Angular funzionante
 
 ## 4 · Cosa manca, in ordine di punteggio
 
-### 🔴 Da fare per primi — toccano i criteri pesanti
+### ✅ Fatti (commit successivi a `c043cab`)
+
+| # | Cosa | Criterio |
+|---|---|---|
+| 1 | **Chiave fuori dal bundle.** `environment.claudeApiKey` era già vuota. Aggiunti `RunModeService` (chiave in `sessionStorage`, sparisce alla chiusura) e il componente `RunModeSwitch` con inserimento a runtime. | 05 |
+| 2 | **Model tiering.** Step 1 `claude-opus-5` con adaptive thinking; step 2 e 3 `claude-haiku-4-5`, step 2 con `effort: "low"`. | 05 · 04 |
+| 3 | **Output strutturati.** Validazione Zod contro `@schemas/steps`, una rigenerazione se invalido, poi fallback. Il `tsconfig.app.json` importa davvero da `agents/schemas/`: fonte unica reale, non dichiarata. | 01 · 03 |
+| 4 | **`verified-facts.ts`** con `factsBlock()` iniettato nel prompt dello step 3. | 01 · 03 |
+| 5 | **`guardrail.ts`** — filtro deterministico su tutte e tre le politiche, applicato all'output di ogni step. | 03 |
+| 6 | **`cache_control: ephemeral`** sui tre system prompt + `policy-text.ts`: le regole comuni esistono una volta sola anche nel codice, non solo nei `.md`. | 04 · 02 |
+| — | **Modalità live / locale** con `WorkflowTrace` per la degradazione visibile. | 03 |
+
+### 🔴 Prossimi
 
 | # | Cosa | Criterio | Chi |
 |---|---|---|---|
-| 1 | **Togliere la chiave API dal browser.** Oggi `environment.claudeApiKey` + header `anthropic-dangerous-direct-browser-access`. Per un prototipo basta farla inserire a runtime dall'utente e lasciare `environment.claudeApiKey` vuota: nessuna chiave nel bundle. | 05 | A |
-| 2 | **Model tiering nel codice.** Oggi tutto su `claude-opus-5`. Step 2 e 3 → `claude-haiku-4-5`, step 2 con `effort: "low"`. | 05 · 04 | A |
-| 3 | **Output strutturati.** Sostituire `parseJson` via regex con validazione Zod di `schemas/steps.ts`. Una rigenerazione se non valida, poi fallback. | 01 · 03 | A |
-| 4 | **`verified-facts.ts`** — l'elenco dei fatti verificati richiesto da `numeric-grounding.md`, con il controllo sulle cifre delle lezioni. | 01 · 03 | A |
-| 5 | **`guardrail.ts`** — filtro deterministico su `no-advice` e `no-moralizing`, applicato a ogni testo in uscita. | 03 | A |
-| 6 | **`cache_control: ephemeral`** sui tre system prompt. | 04 | A |
 | 7 | **README.md radice** — flusso agentico col diagramma, setup, model tiering, limiti noti. Vale il 7% e si scrive in fretta. | 07 | B |
+| 7b | **Innestare `<app-run-mode-switch />`** nella UI quando ci sono le pagine. Il componente è pronto, oggi non è referenziato da nessuna parte. | 05 | B |
+| 7c | **Completare `verified-facts.ts`.** Oggi contiene una sola voce (garanzia depositi). IRPEF, INPS e TFR sono elencati come da verificare: vanno controllati sulla fonte prima di inserirli, o le lezioni restano senza cifre. | 01 | A |
+| 7d | **Test del guardrail** — le sezioni *Verifica* in fondo a ogni policy sono già i casi da implementare. | 03 | A |
 
 ### 🟡 Poi
 
