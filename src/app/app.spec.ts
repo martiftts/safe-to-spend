@@ -15,10 +15,13 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  // Il test dello scaffold cercava un <h1>Hello, finstart</h1> rimosso quando
+  // app.html è diventato il solo <router-outlet />. Ora si verifica ciò che il
+  // componente fa davvero: ospitare le rotte.
+  it('espone il router outlet', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, finstart');
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });

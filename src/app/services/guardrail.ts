@@ -18,30 +18,51 @@ export interface GuardrailResult {
   violations: Violation[];
 }
 
+/**
+ * `\b` in JavaScript è basato su ASCII: non riconosce i confini di parola con
+ * le lettere accentate. `/\bè troppo\b/` non trova «è troppo basso» e
+ * `/familiarità\b/` non trova «familiarità con». Su un filtro che protegge
+ * testi italiani è un difetto sostanziale — le regole non scattano mai.
+ *
+ * Questi confini sono unicode-aware e funzionano con le accentate.
+ */
+const START = '(?<![\\p{L}\\p{N}])';
+const END = '(?![\\p{L}\\p{N}])';
+const w = (body: string): RegExp => new RegExp(START + body + END, 'iu');
+
 /** agents/policies/no-advice.md § Forme vietate */
 const ADVICE_PATTERNS: Array<[RegExp, string]> = [
-  [/\bdovres(ti|te)\b/i, 'imperativo'],
-  [/\bdevi\b/i, 'imperativo'],
-  [/\bti consigli/i, 'consiglio esplicito'],
-  [/\bti suggeri/i, 'consiglio esplicito'],
-  [/\b(ti )?convien[ea]\b/i, 'giudizio di convenienza'],
-  [/\bè meglio\b/i, 'giudizio di convenienza'],
-  [/\bè tropp[oa]\b/i, 'valutazione di soglia'],
-  [/\bè poc[oa]\b/i, 'valutazione di soglia'],
-  [/\battenzione\b/i, 'allarme'],
-  [/\brischi di\b/i, 'allarme'],
-  [/\b(apri|sottoscrivi|scegli) un (conto|prodotto|fondo|prestito)/i, 'indicazione di prodotto'],
+  [w('dovres(ti|te)'), 'imperativo'],
+  [w('devi'), 'imperativo'],
+  [w('evita(re|lo|li)?'), 'imperativo'],
+  [w('ti (consigli|suggeri)\\w*'), 'consiglio esplicito'],
+  [w('(ti )?convien[ea]'), 'giudizio di convenienza'],
+  [w('è meglio'), 'giudizio di convenienza'],
+  [w('è tropp[oa]'), 'valutazione di soglia'],
+  [w('è poc[oa]'), 'valutazione di soglia'],
+  [w('attenzione'), 'allarme'],
+  [w('rischi di'), 'allarme'],
+  [w('(apri|sottoscrivi|scegli|imposta) un\\w* (conto|prodotto|fondo|prestito|accantonamento)'), 'indicazione di prodotto o azione'],
 ];
 
 /** agents/policies/no-moralizing.md § Vietato / Ammesso */
 const MORALIZING_PATTERNS: Array<[RegExp, string]> = [
-  [/\bbrav[oa]\b/i, 'lode'],
-  [/\bottim[oa]\b/i, 'lode'],
-  [/\bcomplimenti\b/i, 'lode'],
-  [/\bpurtroppo\b/i, 'commiserazione'],
-  [/\b(scars[ao]|insufficiente|inadeguat[oa])\b/i, 'giudizio sulla persona'],
-  [/\bbassa (familiarità|conoscenza|preparazione)\b/i, 'giudizio sulla persona'],
-  [/\b(novice|aware|practitioner)\b/i, 'etichetta interna esposta'],
+  [w('brav[oa]'), 'lode'],
+  [w('ottim[oa]'), 'lode'],
+  [w('complimenti'), 'lode'],
+  [w('purtroppo'), 'commiserazione'],
+  [w('(scars[ao]|insufficiente|inadeguat[oa])'), 'giudizio sulla persona'],
+  [w('bassa (familiarità|conoscenza|preparazione)'), 'giudizio sulla persona'],
+  [w('(novice|aware|practitioner)'), 'etichetta interna esposta'],
+  // Vocabolario valutativo sulle spese: vedi no-moralizing.md
+  // § Categorizzazione delle spese. Le etichette ammesse sono descrittive.
+  [w('voluttuari[eoa]'), 'etichetta valutativa'],
+  [w('superflu[eoa]'), 'etichetta valutativa'],
+  [w('non essenzial[ei]'), 'etichetta valutativa'],
+  [w('impulsiv[eoi]'), 'giudizio sulla spesa'],
+  [w('senso di colpa'), 'giudizio sulla spesa'],
+  [w('con giudizio'), 'giudizio sulla spesa'],
+  [w('spese non consapevoli'), 'giudizio sulla spesa'],
 ];
 
 export function checkNoAdvice(text: string): Violation[] {
