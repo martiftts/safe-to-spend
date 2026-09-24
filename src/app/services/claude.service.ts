@@ -43,6 +43,7 @@ export class ClaudeService {
 
   readonly status = signal<WorkflowStatus>('idle');
   readonly error = signal<string | null>(null);
+  readonly profile = signal<UserProfile | null>(null);
 
   /** Tracciato per l'avviso di degradazione e per l'ispezione in demo. */
   readonly trace = signal<WorkflowTrace>({ steps: [], degradedCount: 0 });
@@ -67,7 +68,9 @@ export class ClaudeService {
     state.step3 = await this.execute(3, MODEL_STEP23, () => this.step3(state), () => this.fallbackStep3(state));
 
     this.status.set('done');
-    return this.toProfile(state);
+    const result = this.toProfile(state);
+    this.profile.set(result);
+    return result;
   }
 
   // ─── Orchestrazione di uno step ──────────────────────────────────────────
