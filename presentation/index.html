@@ -224,36 +224,90 @@
   </div>
 </section>
 
-<!-- 03 · mappa del sistema ─────────────────────────────────── -->
+<!-- 03 · tassonomia ────────────────────────────────────────── -->
 <section class="slide">
   <span class="eyebrow">La macchina</span>
-  <h2>Cinque schermate, sei componenti,<br />due soli modelli</h2>
-  <div class="cols" style="grid-template-columns:1.05fr 0.95fr;">
-    <div class="flow">
-      <div class="node det"><span><span class="n-name">consent</span><br /><span class="n-sub">Schermata 1 · fonti dati e permessi</span></span><span class="tag det">deterministico</span></div>
-      <div class="node ai"><span><span class="n-name">categorizer</span><br /><span class="n-sub">Schermata 2 · descrizioni → categorie</span></span><span class="tag">haiku-4-5</span></div>
-      <div class="node ai"><span><span class="n-name">intake</span><br /><span class="n-sub">Schermata 3 · linguaggio libero → dati</span></span><span class="tag">opus-5</span></div>
-      <div class="node det"><span><span class="n-name">engine</span><br /><span class="n-sub">Schermata 4 · catena, accantonamento, indicatori</span></span><span class="tag det">deterministico</span></div>
-      <div class="node ai"><span><span class="n-name">narrator</span><br /><span class="n-sub">Schermata 4 · numeri → spiegazione</span></span><span class="tag">haiku-4-5</span></div>
-      <div class="node det"><span><span class="n-name">solver</span><br /><span class="n-sub">Schermata 5 · obiettivo → date</span></span><span class="tag det">deterministico</span></div>
-      <div class="node det" style="margin-top:6px;"><span><span class="n-name">guardrail</span><br /><span class="n-sub">su ogni testo, prima dello schermo</span></span><span class="tag det">zero token</span></div>
+  <h2>Tre agenti, cinque skill,<br />due modelli</h2>
+  <p style="max-width:80ch;margin-bottom:22px;">
+    Tre categorie distinte, con confini precisi. Un componente è un <em>agente</em> solo se ha un modello:
+    tutto il resto è codice, e chiamarlo agente non lo renderebbe più agentico.
+  </p>
+  <div class="cols" style="grid-template-columns:1fr 1fr;">
+    <div>
+      <div class="agent" style="margin-bottom:14px;">
+        <div class="a-head"><div class="a-name"><span class="kind">Definizione</span>Agente</div><span class="tag">3</span></div>
+        <div class="a-body">Ha un <strong>modello</strong>, un prompt versionato in <span class="mono">agents/prompts/</span>,
+        uno schema di output Zod e un fallback dichiarato. Interpreta o produce linguaggio.</div>
+        <div class="meta" style="margin-top:10px;">
+          <div class="meta-row"><span class="k">intake</span><span class="v">linguaggio libero → dati strutturati · <span class="tag">opus-5</span></span></div>
+          <div class="meta-row"><span class="k">categorizer</span><span class="v">descrizioni sporche → categoria · <span class="tag">haiku-4-5</span></span></div>
+          <div class="meta-row"><span class="k">narrator</span><span class="v">numeri calcolati → frasi · <span class="tag">haiku-4-5</span></span></div>
+        </div>
+      </div>
+      <div class="agent det">
+        <div class="a-head"><div class="a-name"><span class="kind">Definizione</span>Skill deterministica</div><span class="tag det">5</span></div>
+        <div class="a-body">Codice puro. Nessun modello, stesso ingresso → stessa uscita.
+        <strong>Calcola o verifica.</strong> Testabile con valori attesi.</div>
+        <div class="meta" style="margin-top:10px;">
+          <div class="meta-row"><span class="k">engine</span><span class="v">catena, accantonamento, indicatori</span></div>
+          <div class="meta-row"><span class="k">solver</span><span class="v">obiettivo e leve → date e divario</span></div>
+          <div class="meta-row"><span class="k">recurrence</span><span class="v">addebiti ricorrenti per importo e cadenza</span></div>
+          <div class="meta-row"><span class="k">grounding</span><span class="v">ogni cifra nel testo esiste nei calcoli?</span></div>
+          <div class="meta-row"><span class="k">guardrail</span><span class="v">nessuna frase vietata dalle politiche?</span></div>
+        </div>
+      </div>
     </div>
     <div>
-      <h3>Tre regole che governano tutto</h3>
-      <div class="agent det">
-        <div class="a-head"><div class="a-name"><span class="kind">Regola 1</span>L'AI non tocca un numero</div></div>
-        <div class="a-body">Gli agenti lavorano solo sul linguaggio, agli estremi della catena. Ogni cifra viene dal motore deterministico ed è verificata prima di comparire.</div>
+      <div class="agent" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.06);margin-bottom:14px;">
+        <div class="a-head"><div class="a-name"><span class="kind">Definizione</span>Politica</div><span class="tag pol">4</span></div>
+        <div class="a-body">Regola trasversale in <span class="mono">agents/policies/</span>, applicata a ogni testo in uscita.
+        <strong>Fonte unica:</strong> gli altri file la citano per nome, non la riscrivono.</div>
+        <div class="meta" style="margin-top:10px;">
+          <div class="meta-row"><span class="k">no-advice</span><span class="v">il confine fra spiegare e consigliare</span></div>
+          <div class="meta-row"><span class="k">no-moralizing</span><span class="v">nessun giudizio, in nessuna direzione</span></div>
+          <div class="meta-row"><span class="k">grounding</span><span class="v">nessuna cifra non calcolata</span></div>
+          <div class="meta-row"><span class="k">escalation</span><span class="v">fallback e limiti di iterazione</span></div>
+        </div>
+      </div>
+      <h3>Le tre regole che li governano</h3>
+      <div class="agent det" style="margin-bottom:8px;">
+        <div class="a-head"><div class="a-name" style="font-size:14px;">1 · L'AI non tocca un numero</div></div>
+        <div class="a-body" style="margin-bottom:0;">Gli agenti stanno agli estremi della catena. Il centro è codice.</div>
+      </div>
+      <div class="agent det" style="margin-bottom:8px;">
+        <div class="a-head"><div class="a-name" style="font-size:14px;">2 · Un modello solo dove serve</div></div>
+        <div class="a-body" style="margin-bottom:0;">Cinque skill contro tre agenti. Un agente in più non rende un sistema più agentico: lo rende più fragile e più caro.</div>
       </div>
       <div class="agent det">
-        <div class="a-head"><div class="a-name"><span class="kind">Regola 2</span>Un modello solo dove serve</div></div>
-        <div class="a-body">Quattro componenti su sei sono codice. Un agente in più non rende un sistema più agentico: lo rende più fragile e più caro.</div>
-      </div>
-      <div class="agent det">
-        <div class="a-head"><div class="a-name"><span class="kind">Regola 3</span>Ogni regola è scritta una volta</div></div>
-        <div class="a-body">Le politiche vivono in <span class="mono">agents/policies/</span>. I prompt le citano per nome, non le riscrivono — né nei file né nel codice.</div>
+        <div class="a-head"><div class="a-name" style="font-size:14px;">3 · Ogni regola è scritta una volta</div></div>
+        <div class="a-body" style="margin-bottom:0;">Vale nei file di istruzioni e nel codice: le politiche sono costanti condivise, non testo duplicato nei prompt.</div>
       </div>
     </div>
   </div>
+</section>
+
+<!-- 03b · il flusso ────────────────────────────────────────── -->
+<section class="slide">
+  <span class="eyebrow">La macchina</span>
+  <h2>Chi produce quale schermata</h2>
+  <div class="flow" style="max-width:920px;">
+    <div class="node det"><span><span class="n-name">Schermata 1 · Consenso</span><br /><span class="n-sub">interfaccia e stato · nessun componente agentico</span></span><span class="tag det">solo codice</span></div>
+    <div class="arrow">↓</div>
+    <div class="node ai"><span><span class="n-name">Schermata 2 · Categorizzazione</span><br /><span class="n-sub">agente <span class="mono">categorizer</span> + skill <span class="mono">recurrence</span></span></span><span class="tag">haiku-4-5</span></div>
+    <div class="arrow">↓</div>
+    <div class="node ai"><span><span class="n-name">Schermata 3 · Spese future</span><br /><span class="n-sub">agente <span class="mono">intake</span> · unico punto di escalation umana</span></span><span class="tag">opus-5</span></div>
+    <div class="arrow">↓</div>
+    <div class="node det"><span><span class="n-name">Schermata 4 · Cruscotto</span><br /><span class="n-sub">skill <span class="mono">engine</span> per i numeri, agente <span class="mono">narrator</span> per le frasi</span></span><span class="tag">haiku-4-5</span></div>
+    <div class="arrow">↓</div>
+    <div class="node det"><span><span class="n-name">Schermata 5 · Obiettivo e simulazione</span><br /><span class="n-sub">skill <span class="mono">solver</span> · nessun modello coinvolto</span></span><span class="tag det">solo codice</span></div>
+    <div class="arrow">↓</div>
+    <div class="node det"><span><span class="n-name">Su ogni testo, prima dello schermo</span><br /><span class="n-sub">skill <span class="mono">grounding</span> + skill <span class="mono">guardrail</span></span></span><span class="tag det">zero token</span></div>
+  </div>
+  <p style="margin-top:24px;font-size:15px;">
+    <strong>Due schermate su cinque non chiamano alcun modello</strong>, e la più importante — il cruscotto —
+    prende i numeri dal codice e dall'agente solo le parole. È il motivo per cui l'app resta usabile
+    anche quando la rete non c'è.
+  </p>
 </section>
 
 <!-- 04 · consenso ──────────────────────────────────────────── -->
@@ -676,10 +730,10 @@
     lo garantisce un filtro che si può vedere mentre blocca.
   </p>
   <div style="margin-top:40px;display:flex;gap:9px;flex-wrap:wrap;">
-    <span class="tag sm">6 componenti</span>
-    <span class="tag sm">2 modelli</span>
-    <span class="tag sm">4 su 6 deterministici</span>
+    <span class="tag sm">3 agenti</span>
+    <span class="tag sm">5 skill deterministiche</span>
     <span class="tag sm">4 politiche</span>
+    <span class="tag sm">2 modelli</span>
     <span class="tag sm">4 profili di test</span>
   </div>
   <p style="margin-top:48px;font-size:10.5px;text-transform:uppercase;letter-spacing:0.22em;color:var(--faint);">
