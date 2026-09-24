@@ -101,15 +101,15 @@ export class WelcomePage {
     this.router.navigate(['/questionnaire']);
   }
 
-  /** Percorso predefinito: consenso, poi inserimento dei propri dati. */
+  /** Percorso completo: consenso, lettura dei dati dal conto, spese future. */
   startBanking() {
-    this.banking.startManual();
+    this.banking.startFlow();
     this.router.navigate(['/consent']);
   }
 
-  /** Scorciatoia: carica un profilo di esempio e va ai risultati calcolati. */
+  /** Scorciatoia: apre un profilo e va direttamente ai risultati calcolati. */
   apriEsempio(id: string) {
-    this.banking.loadPreset(id);
+    this.banking.openShortcut(id);
     this.router.navigate(['/dashboard']);
   }
 }

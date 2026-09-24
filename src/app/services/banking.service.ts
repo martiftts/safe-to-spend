@@ -75,77 +75,71 @@ function groupByCategoria(movimenti: Movimento[]): SpesaPerCategoria[] {
   })).sort((a, b) => b.importoMensile - a.importoMensile);
 }
 
-/** Da dove arriva il profilo attualmente in uso. */
-export type ProfileSource = 'manuale' | 'preset';
+/** Cliente predefinito quando si entra dal flusso principale. */
+export const DEFAULT_CUSTOMER_ID = 'monoreddito-figli';
 
-/** Punto di partenza dell'inserimento da zero. */
-export const EMPTY_PROFILE: HouseholdProfile = {
-  nucleo: { adulti: 1, minori: 0, percettori: 1 },
-  reddito: { nettoMensile: 0, mensilita: 12, accessoriAnnui: 0 },
-  debiti: [],
-  speseFisse: [],
-  speseFuture: [],
-  saldoAttuale: 0,
-};
+/**
+ * Come si è arrivati al cruscotto.
+ *  flusso       → consenso, lettura dei dati, spese future
+ *  scorciatoia  → profilo aperto direttamente dalla home
+ */
+export type EntryMode = 'flusso' | 'scorciatoia';
 
 @Injectable({ providedIn: 'root' })
 export class BankingService {
   /**
-   * Il percorso predefinito è l'inserimento dei propri dati. I preset restano
-   * come scorciatoia dichiarata dalla home, per vedere risultati calcolati
-   * senza compilare tutto a mano.
+   * I dati economici arrivano dal conto: l'app vive dentro l'home banking e non
+   * li chiede all'utente. Il preset rappresenta il cliente di cui la banca
+   * possiede i dati.
    */
-  readonly source = signal<ProfileSource>('manuale');
-  readonly selectedPresetId = signal<string | null>(null);
-  readonly manualProfile = signal<HouseholdProfile | null>(null);
+  readonly customerId = signal<string | null>(null);
+  readonly entryMode = signal<EntryMode>('flusso');
+
+  /**
+   * L'unica cosa che il conto non può sapere: le spese che la persona ha già in
+   * programma. È l'unico dato che l'utente inserisce.
+   */
+  readonly speseFutureUtente = signal<HouseholdProfile['speseFuture'] | null>(null);
 
   readonly preset = computed<HouseholdPreset | undefined>(() => {
-    const id = this.selectedPresetId();
+    const id = this.customerId();
     return id ? HOUSEHOLD_PRESETS.find(p => p.id === id) : undefined;
   });
 
-  readonly profile = computed<HouseholdProfile | undefined>(() =>
-    this.source() === 'preset' ? this.preset()?.profile : this.manualProfile() ?? undefined
-  );
+  readonly profile = computed<HouseholdProfile | undefined>(() => {
+    const base = this.preset()?.profile;
+    if (!base) return undefined;
+    const override = this.speseFutureUtente();
+    return override ? { ...base, speseFuture: override } : base;
+  });
 
   /** Vero quando c'è un profilo su cui il cruscotto può lavorare. */
   readonly hasProfile = computed(() => this.profile() !== undefined);
 
-  /** Carica un profilo di esempio e salta l'inserimento. */
-  loadPreset(id: string): void {
-    this.selectedPresetId.set(id);
-    this.source.set('preset');
+  /** Avvia il percorso completo: consenso, lettura dei dati, spese future. */
+  startFlow(customerId: string = DEFAULT_CUSTOMER_ID): void {
+    this.customerId.set(customerId);
+    this.speseFutureUtente.set(null);
+    this.entryMode.set('flusso');
   }
 
-  /** Inizia un inserimento da zero. */
-  startManual(): void {
-    this.manualProfile.set({ ...EMPTY_PROFILE });
-    this.selectedPresetId.set(null);
-    this.source.set('manuale');
+  /** Apre un profilo direttamente dalla home, saltando il percorso. */
+  openShortcut(customerId: string): void {
+    this.customerId.set(customerId);
+    this.speseFutureUtente.set(null);
+    this.entryMode.set('scorciatoia');
   }
 
-  /**
-   * Scrive il profilo inserito a mano. Se si stava guardando un preset,
-   * il valore diventa il punto di partenza invece di essere perso.
-   */
-  setManualProfile(p: HouseholdProfile): void {
-    this.manualProfile.set(p);
-    this.selectedPresetId.set(null);
-    this.source.set('manuale');
-  }
-
-  /** Aggiorna le sole spese future, da qualunque origine venga il profilo. */
+  /** Registra le spese future inserite dall'utente. */
   setSpeseFuture(speseFuture: HouseholdProfile['speseFuture']): void {
-    const base = this.profile();
-    if (!base) return;
-    this.setManualProfile({ ...base, speseFuture });
+    this.speseFutureUtente.set(speseFuture);
   }
 
   /** Svuota tutto e riporta all'ingresso, senza ricaricare la pagina. */
   reset(): void {
-    this.manualProfile.set(null);
-    this.selectedPresetId.set(null);
-    this.source.set('manuale');
+    this.customerId.set(null);
+    this.speseFutureUtente.set(null);
+    this.entryMode.set('flusso');
   }
 
   readonly bankingData = computed<BankingData | undefined>(() => {

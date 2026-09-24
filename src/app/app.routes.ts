@@ -18,8 +18,8 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/consent/consent.component').then(m => m.ConsentPage),
   },
   {
-    path: 'setup',
-    loadComponent: () => import('./pages/setup/setup.component').then(m => m.SetupPage),
+    path: 'lettura',
+    loadComponent: () => import('./pages/lettura/lettura.component').then(m => m.LetturaPage),
   },
   {
     path: 'simulator',
