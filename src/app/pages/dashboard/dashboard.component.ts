@@ -2,7 +2,6 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BankingService } from '../../services/banking.service';
-import { HOUSEHOLD_PRESETS } from '../../data/household-profiles';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,26 +11,27 @@ import { HOUSEHOLD_PRESETS } from '../../data/household-profiles';
     <div class="min-h-screen bg-gray-50 px-4 py-10">
       <div class="max-w-lg mx-auto">
 
-        <!-- Selettore profilo -->
-        <div class="mb-6">
-          <label class="block text-sm text-gray-500 mb-2">Profilo di demo</label>
-          <div class="flex flex-wrap gap-2">
-            @for (p of presets; track p.id) {
-              <button
-                type="button"
-                (click)="banking.selectPreset(p.id)"
-                class="px-3 py-1.5 rounded-full text-sm font-medium border transition-colors"
-                [class.bg-blue-600]="banking.selectedPresetId() === p.id"
-                [class.text-white]="banking.selectedPresetId() === p.id"
-                [class.border-blue-600]="banking.selectedPresetId() === p.id"
-                [class.bg-white]="banking.selectedPresetId() !== p.id"
-                [class.text-gray-700]="banking.selectedPresetId() !== p.id"
-                [class.border-gray-300]="banking.selectedPresetId() !== p.id">
-                {{ p.label }}
-              </button>
-            }
+        <!-- Se si sta guardando un profilo di esempio, va detto. -->
+        @if (banking.source() === 'preset') {
+          <div class="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <p class="text-sm text-amber-900">
+              Stai guardando un profilo di esempio: <strong>{{ banking.preset()?.label }}</strong>
+            </p>
+            <button type="button" (click)="ricomincia()" class="shrink-0 text-sm font-medium text-amber-900 underline">
+              Usa i tuoi dati
+            </button>
           </div>
-        </div>
+        }
+
+        <!-- Nessun profilo: si torna all'ingresso invece di mostrare una pagina vuota. -->
+        @if (!banking.hasProfile()) {
+          <div class="rounded-xl border border-gray-200 bg-white p-6 text-center">
+            <p class="text-gray-600 mb-4">Non ci sono ancora dati da mostrare.</p>
+            <button type="button" (click)="ricomincia()" class="bg-gray-900 text-white font-semibold py-2.5 px-5 rounded-xl">
+              Inizia
+            </button>
+          </div>
+        }
 
         <!-- Budget giornaliero -->
         @if (chain()) {
@@ -127,12 +127,21 @@ import { HOUSEHOLD_PRESETS } from '../../data/household-profiles';
         }
 
         <!-- CTA -->
-        <button
-          type="button"
-          (click)="router.navigate(['/goals'])"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
-          Imposta un obiettivo
-        </button>
+        @if (banking.hasProfile()) {
+          <button
+            type="button"
+            (click)="router.navigate(['/goals'])"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+            Imposta un obiettivo
+          </button>
+
+          <button
+            type="button"
+            (click)="ricomincia()"
+            class="w-full mt-3 text-sm text-gray-500 hover:text-gray-800">
+            Svuota e ricomincia
+          </button>
+        }
       </div>
     </div>
   `,
@@ -141,7 +150,6 @@ export class DashboardPage {
   readonly banking: BankingService = inject(BankingService);
   readonly router: Router = inject(Router);
 
-  readonly presets = HOUSEHOLD_PRESETS;
   readonly chain = this.banking.chain;
   readonly indicators = this.banking.indicators;
 
@@ -154,5 +162,10 @@ export class DashboardPage {
       else next.add(i);
       return next;
     });
+  }
+
+  ricomincia(): void {
+    this.banking.reset();
+    this.router.navigate(['/']);
   }
 }

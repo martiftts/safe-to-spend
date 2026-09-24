@@ -139,6 +139,9 @@ export class FutureExpensesPage {
   }
 
   avanti(): void {
+    // Le spese inserite qui devono finire nel profilo: senza questo passaggio
+    // il cruscotto ricalcolerebbe l'accantonamento sui dati di partenza.
+    this.banking.setSpeseFuture(this.speseFuture());
     this.router.navigate(['/dashboard']);
   }
 }

@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ClaudeService } from '../../services/claude.service';
+import { BankingService } from '../../services/banking.service';
+import { HOUSEHOLD_PRESETS } from '../../data/household-profiles';
 
 @Component({
   standalone: true,
@@ -58,14 +60,23 @@ import { ClaudeService } from '../../services/claude.service';
         </button>
       </div>
 
-      <div class="flex items-center gap-2 mt-14 flex-wrap justify-center text-xs text-white/25">
-        <span class="px-3 py-1 border border-white/10 rounded-full">📝 Questionario</span>
-        <span>→</span>
-        <span class="px-3 py-1 border border-white/10 rounded-full">🔍 Analyze</span>
-        <span>→</span>
-        <span class="px-3 py-1 border border-white/10 rounded-full">🏷️ Classify</span>
-        <span>→</span>
-        <span class="px-3 py-1 border border-white/10 rounded-full">📚 Educate</span>
+      <!-- Scorciatoia dichiarata: profili di esempio per vedere risultati
+           calcolati senza compilare l'inserimento. Volutamente secondaria
+           rispetto all'ingresso normale. -->
+      <div class="w-full max-w-xs mt-12">
+        <p class="text-[11px] uppercase tracking-[0.2em] text-white/25 text-center mb-3">
+          Oppure guarda un esempio
+        </p>
+        <div class="flex flex-col gap-2">
+          @for (p of presets; track p.id) {
+            <button
+              (click)="apriEsempio(p.id)"
+              class="text-left bg-white/[0.04] hover:bg-white/10 border border-white/10 rounded-lg px-4 py-2.5 transition-colors">
+              <span class="block text-sm text-white/80">{{ p.label }}</span>
+              <span class="block text-[11px] text-white/35 leading-snug">{{ p.note }}</span>
+            </button>
+          }
+        </div>
       </div>
 
       <p class="text-white/15 text-[10px] uppercase tracking-widest mt-10">
@@ -77,6 +88,9 @@ import { ClaudeService } from '../../services/claude.service';
 export class WelcomePage {
   private readonly router = inject(Router);
   private readonly claudeService = inject(ClaudeService);
+  private readonly banking = inject(BankingService);
+
+  readonly presets = HOUSEHOLD_PRESETS;
 
   apiKey = '';
 
@@ -87,7 +101,15 @@ export class WelcomePage {
     this.router.navigate(['/questionnaire']);
   }
 
+  /** Percorso predefinito: consenso, poi inserimento dei propri dati. */
   startBanking() {
+    this.banking.startManual();
     this.router.navigate(['/consent']);
+  }
+
+  /** Scorciatoia: carica un profilo di esempio e va ai risultati calcolati. */
+  apriEsempio(id: string) {
+    this.banking.loadPreset(id);
+    this.router.navigate(['/dashboard']);
   }
 }
