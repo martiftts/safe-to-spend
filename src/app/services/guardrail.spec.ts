@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkGrounding, checkNoAdvice, checkNoMoralizing, extractNumbers, runGuardrail } from './guardrail';
+import { checkCategoryLeakage, checkGrounding, checkNoAdvice, checkNoMoralizing, extractNumbers, runGuardrail } from './guardrail';
 import { allowedValues } from '../data/verified-facts';
 
 /**
@@ -120,5 +120,51 @@ describe('runGuardrail', () => {
         "L'INPS è la quota che finanzia la tua pensione futura. Viene trattenuta ogni mese e versata a tuo nome.",
       ).ok,
     ).toBe(true);
+  });
+});
+
+describe('surface:solver — agents/policies/no-advice.md § Eccezione del solver', () => {
+  it('solver senza adviceRequestedAt -> bloccato', () => {
+    const result = runGuardrail(
+      'Con queste riduzioni l\'obiettivo arriva a marzo.',
+      { surface: 'solver' },
+    );
+    expect(result.ok).toBe(false);
+    expect(result.violations[0].detail).toContain('adviceRequestedAt');
+  });
+
+  it('solver con adviceRequestedAt -> testo calcolato ammesso', () => {
+    const result = runGuardrail(
+      'Con le riduzioni che hai indicato, il traguardo si sposta a ottobre.',
+      { surface: 'solver', adviceRequestedAt: new Date() },
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it('solver: categoria non dichiarata nelle leve -> bloccato', () => {
+    const leveUtente = new Set(['trasporti', 'abbonamenti']);
+    const result = runGuardrail(
+      'Riducendo alimentari di 50 euro al mese arriveresti prima.',
+      { surface: 'solver', adviceRequestedAt: new Date(), allowedCategories: leveUtente },
+    );
+    expect(result.ok).toBe(false);
+    expect(result.violations.some(v => v.detail.includes('alimentari'))).toBe(true);
+  });
+
+  it('solver: categoria dichiarata nelle leve -> ammessa', () => {
+    const leveUtente = new Set(['trasporti', 'abbonamenti']);
+    const result = runGuardrail(
+      'Riducendo trasporti e abbonamenti di 80 euro si libera il margine necessario.',
+      { surface: 'solver', adviceRequestedAt: new Date(), allowedCategories: leveUtente },
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it('solver: il moralismo resta bloccato anche in modo solver', () => {
+    const result = runGuardrail(
+      'Ottimo! Sei molto bravo a gestire il budget.',
+      { surface: 'solver', adviceRequestedAt: new Date() },
+    );
+    expect(result.ok).toBe(false);
   });
 });
