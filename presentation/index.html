@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Safe to Spend · Demo</title>
+<style>
+  :root {
+    --purple: #A100FF;
+    --purple-light: #BE82FF;
+    --ink: #0A0014;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #050008;
+    color: #fff;
+    font-family: "Inter", system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  .slide {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .brand { font-size: 12px; text-transform: uppercase; letter-spacing: 0.25em; color: var(--purple-light); margin-bottom: 16px; }
+  h1 { font-size: 48px; font-weight: 700; letter-spacing: -0.03em; }
+  h2 { font-size: 32px; font-weight: 700; margin-bottom: 24px; }
+  .grad { background: linear-gradient(90deg, var(--purple-light), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  p { color: rgba(255,255,255,0.7); max-width: 600px; margin: 16px auto 0; font-size: 18px; }
+  .tag { display: inline-block; border: 1px solid rgba(161,0,255,0.4); background: rgba(161,0,255,0.1); border-radius: 999px; padding: 6px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--purple-light); margin-bottom: 24px; }
+  .flow { display: flex; gap: 16px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+  .step { background: rgba(161,0,255,0.1); border: 1px solid rgba(161,0,255,0.3); border-radius: 12px; padding: 16px 24px; font-size: 14px; }
+  .arrow { color: var(--purple); font-size: 20px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 700px; margin-top: 32px; }
+  .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; text-align: left; }
+  .card h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--purple-light); margin-bottom: 8px; }
+  .card p { font-size: 14px; margin: 0; }
+  footer { text-align: center; padding: 32px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.25); }
+  footer span { color: var(--purple); }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<section class="slide">
+  <div class="brand">Accenture · Application Engineering · Hagenthon 2026</div>
+  <h1><span class="grad">Safe to Spend</span></h1>
+  <p>Educazione finanziaria adattiva per chi non capisce la propria busta paga.</p>
+  <p style="margin-top:8px;font-size:14px;color:rgba(255,255,255,0.4)">Tema 02 · Inclusione Finanziaria</p>
+</section>
+
+<!-- SLIDE 2: Il problema -->
+<section class="slide">
+  <span class="tag">Il problema</span>
+  <h2>Marco non sa quanti soldi ha</h2>
+  <p>34 anni, operaio. Riceve la busta paga, vede numeri che non capisce — INPS, IRPEF, TFR — e non riesce a calcolare quanto può davvero spendere.</p>
+  <div class="cols">
+    <div class="card">
+      <h3>Prima</h3>
+      <p>Retribuzione lorda €2.100. Trattenute varie. Marco non capisce le voci e non prende decisioni.</p>
+    </div>
+    <div class="card">
+      <h3>Dopo</h3>
+      <p>"Il tuo safe to spend è ~€1.400. INPS e IRPEF non sono tuoi. Il TFR è un risparmio forzato."</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: Il workflow agentico -->
+<section class="slide">
+  <span class="tag">Come funziona</span>
+  <h2>Workflow <span class="grad">agentico</span> 3 step</h2>
+  <div class="flow">
+    <div class="step">📝 Questionario<br/><small>6 domande</small></div>
+    <div class="arrow">→</div>
+    <div class="step">🔍 Analyze<br/><small>pain point</small></div>
+    <div class="arrow">→</div>
+    <div class="step">🏷️ Classify<br/><small>archetype</small></div>
+    <div class="arrow">→</div>
+    <div class="step">📚 Educate<br/><small>3 micro-lezioni</small></div>
+  </div>
+  <p>Ogni step ha prompt strutturato, output JSON e vincoli espliciti. Fallback locale se Claude non risponde.</p>
+</section>
+
+<!-- SLIDE 4: Stack & repo -->
+<section class="slide">
+  <span class="tag">Stack & Consegna</span>
+  <h2>Tecnologie usate</h2>
+  <div class="cols">
+    <div class="card"><h3>Frontend</h3><p>Angular 22 + Tailwind CSS v3</p></div>
+    <div class="card"><h3>AI</h3><p>Claude API — orchestrazione multi-step</p></div>
+    <div class="card"><h3>Repo</h3><p>github.com/martiftts/safe-to-spend</p></div>
+    <div class="card"><h3>Agentic</h3><p>3 prompt strutturati · stato esternalizzato · fallback</p></div>
+  </div>
+</section>
+
+<footer>Safe to Spend · <span>Hagenthon</span> · Accenture Application Engineering · 24 settembre 2026</footer>
+</body>
+</html>
