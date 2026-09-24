@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Question } from '../models/question.model';
 import { StepAnswer } from '../models/profile.model';
 
@@ -8,13 +8,23 @@ export const QUESTIONS: Question[] = [
     text: 'Quanti siete nel tuo nucleo familiare?',
     options: [
       { label: 'Vivo da solo', value: 'solo' },
-      { label: 'In coppia', value: 'coppia' },
-      { label: 'Famiglia con 1–2 figli', value: 'famiglia-piccola' },
-      { label: 'Famiglia con 3 o più figli', value: 'famiglia-grande' },
+      { label: 'In coppia, senza figli', value: 'coppia' },
+      { label: 'Ho figli', value: 'con-figli' },
     ],
   },
   {
     id: 1,
+    text: 'Quanti figli hai?',
+    showIf: (a) => a[0] === 'con-figli',
+    options: [
+      { label: '1 figlio', value: '1-figlio' },
+      { label: '2 figli', value: '2-figli' },
+      { label: '3 figli', value: '3-figli' },
+      { label: 'Più di 3', value: '4-figli-plus' },
+    ],
+  },
+  {
+    id: 2,
     text: 'Quali sono le tue entrate nette mensili?',
     options: [
       { label: 'Meno di €1.000', value: '<1000' },
@@ -24,7 +34,7 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
-    id: 2,
+    id: 3,
     text: 'Quanto spendi in spese fisse al mese? (affitto/mutuo, bollette, abbonamenti)',
     options: [
       { label: 'Meno di €400', value: '<400' },
@@ -34,7 +44,7 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
-    id: 3,
+    id: 4,
     text: 'Hai rate o debiti in corso? (prestiti, finanziamenti, carta rateale)',
     options: [
       { label: 'No', value: 'no' },
@@ -43,7 +53,7 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
-    id: 4,
+    id: 5,
     text: 'Come gestisci attualmente le tue spese quotidiane?',
     options: [
       { label: 'Non le traccio', value: 'non-traccio' },
@@ -53,7 +63,7 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
-    id: 5,
+    id: 6,
     text: 'Hai spese importanti previste nei prossimi 6 mesi?',
     options: [
       { label: 'No, niente di pianificato', value: 'no' },
@@ -66,29 +76,26 @@ export const QUESTIONS: Question[] = [
 
 @Injectable({ providedIn: 'root' })
 export class QuestionnaireService {
-  readonly questions = QUESTIONS;
-  readonly answers = signal<(string | null)[]>(Array(QUESTIONS.length).fill(null));
+  readonly allQuestions = QUESTIONS;
+
+  readonly answers = signal<Record<number, string>>({});
+
+  visibleQuestions(answers: Record<number, string>): Question[] {
+    return QUESTIONS.filter(q => !q.showIf || q.showIf(answers));
+  }
 
   setAnswer(questionId: number, value: string): void {
-    this.answers.update(prev => {
-      const next = [...prev];
-      next[questionId] = value;
-      return next;
-    });
+    this.answers.update(prev => ({ ...prev, [questionId]: value }));
   }
 
-  isComplete(): boolean {
-    return this.answers().every(a => a !== null);
-  }
-
-  toStepAnswers(): StepAnswer[] {
-    return QUESTIONS.map((q, i) => ({
+  toStepAnswers(answers: Record<number, string>): StepAnswer[] {
+    return this.visibleQuestions(answers).map(q => ({
       question: q.text,
-      answer: this.answers()[i] ?? '',
+      answer: answers[q.id] ?? '',
     }));
   }
 
   reset(): void {
-    this.answers.set(Array(QUESTIONS.length).fill(null));
+    this.answers.set({});
   }
 }

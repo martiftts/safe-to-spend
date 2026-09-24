@@ -136,19 +136,21 @@ Sii specifico al nucleo familiare e al margine. NON consigliare prodotti, banche
     const expMap: Record<string, number> = { '<400': 300, '400-800': 600, '800-1400': 1100, '>1400': 1600 };
     const debtMap: Record<string, number> = { 'no': 0, 'si-piccoli': 150, 'si-significativi': 350 };
 
-    const income = incomeMap[answers[1]?.answer] ?? 1500;
-    const expenses = expMap[answers[2]?.answer] ?? 600;
-    const debts = debtMap[answers[3]?.answer] ?? 0;
+    const byQ = (q: string) => answers.find(a => a.question.startsWith(q))?.answer ?? '';
+    const income = incomeMap[byQ('Quali sono le tue entrate')] ?? 1500;
+    const expenses = expMap[byQ('Quanto spendi in spese fisse')] ?? 600;
+    const debts = debtMap[byQ('Hai rate o debiti')] ?? 0;
     return Math.max(0, income - expenses - debts);
   }
 
   private fallbackStep1(state: AgentState): AgentState['step1'] {
     const safe = this.estimateSafeToSpend(state.answers);
-    const family = state.answers[0]?.answer ?? 'solo';
+    const family = state.answers.find(a => a.question.startsWith('Quanti siete'))?.answer ?? 'solo';
+    const children = state.answers.find(a => a.question.startsWith('Quanti figli'))?.answer ?? '';
+    const childLabel = children ? ` con ${children.replace('-figli','').replace('-plus','+').replace('1','1')} figli` : '';
     const familyLabel: Record<string, string> = {
       solo: 'vivi da solo', coppia: 'vivete in coppia',
-      'famiglia-piccola': 'avete una famiglia con figli',
-      'famiglia-grande': 'avete una famiglia numerosa',
+      'con-figli': `avete una famiglia${childLabel}`,
     };
     return {
       safeToSpend: `circa €${safe}/mese`,
@@ -176,8 +178,8 @@ Sii specifico al nucleo familiare e al margine. NON consigliare prodotti, banche
 
   private fallbackStep3(state: AgentState): AgentState['step3'] {
     const profile = state.step2?.spendingProfile ?? 'balanced';
-    const family = state.answers[0]?.answer ?? 'solo';
-    const futurePlans = state.answers[5]?.answer ?? 'no';
+    const family = state.answers.find(a => a.question.startsWith('Quanti siete'))?.answer ?? 'solo';
+    const futurePlans = state.answers.find(a => a.question.startsWith('Hai spese importanti'))?.answer ?? 'no';
     const hasFuturePlans = futurePlans !== 'no';
 
     const adviceMap: Record<SpendingProfile, { canSpendOn: string[]; avoid: string[] }> = {
