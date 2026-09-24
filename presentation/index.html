@@ -569,34 +569,6 @@
   </div>
 </section>
 
-<!-- 10 · robustezza ────────────────────────────────────────── -->
-<section class="slide">
-  <span class="eyebrow">Robustezza</span>
-  <h2>Nessun ciclo illimitato,<br />nessuna degradazione nascosta</h2>
-  <table>
-    <tr><th style="width:42%;">Limite</th><th style="width:15%;">Valore</th><th>Al superamento</th></tr>
-    <tr><td>Timeout per chiamata</td><td><strong>15 s</strong></td><td>Percorso deterministico del componente</td></tr>
-    <tr><td>Retry su rete o 5xx</td><td><strong>2</strong></td><td>Backoff esponenziale, poi fallback</td></tr>
-    <tr><td>Retry su 4xx</td><td><strong>0</strong></td><td>Una chiave mancante non si risolve ritentando</td></tr>
-    <tr><td>Rigenerazione su output invalido o vietato</td><td><strong>1</strong></td><td>Poi testo deterministico</td></tr>
-    <tr><td>Domande per campo, prima dell'escalation</td><td><strong>3</strong></td><td>Si passa al campo strutturato</td></tr>
-    <tr><td>Componenti degradati tollerati</td><td><strong>2 su 3</strong></td><td>Risultato mostrato <em>con avviso esplicito</em></td></tr>
-  </table>
-  <div class="cols" style="margin-top:24px;">
-    <div class="panel accent">
-      <h4>Il calcolo non dipende dall'AI</h4>
-      <p>Il motore è codice: budget, accantonamento e simulazione funzionano anche senza
-      una sola chiamata di rete. L'AI aggiunge il linguaggio, non i numeri — e senza linguaggio
-      l'app resta usabile.</p>
-    </div>
-    <div class="panel">
-      <h4>La degradazione si dichiara</h4>
-      <p>«Una parte di questi contenuti è generica: non siamo riusciti a personalizzarla.»
-      Non è una scusa: è l'informazione che serve a sapere quanto fidarsi di ciò che si legge.</p>
-    </div>
-  </div>
-</section>
-
 <!-- 11 · margine negativo ──────────────────────────────────── -->
 <section class="slide">
   <span class="eyebrow">Il caso difficile</span>
