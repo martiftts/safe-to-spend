@@ -124,7 +124,7 @@ export class ConsentPage {
   }
 
   proceed(): void {
-    this.router.navigate(['/setup']);
+    this.router.navigate(['/lettura']);
   }
 }
 

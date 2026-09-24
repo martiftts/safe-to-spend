@@ -12,13 +12,13 @@ import { BankingService } from '../../services/banking.service';
       <div class="max-w-lg mx-auto">
 
         <!-- Se si sta guardando un profilo di esempio, va detto. -->
-        @if (banking.source() === 'preset') {
+        @if (banking.entryMode() === 'scorciatoia') {
           <div class="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
             <p class="text-sm text-amber-900">
-              Stai guardando un profilo di esempio: <strong>{{ banking.preset()?.label }}</strong>
+              Profilo di esempio: <strong>{{ banking.preset()?.label }}</strong>
             </p>
             <button type="button" (click)="ricomincia()" class="shrink-0 text-sm font-medium text-amber-900 underline">
-              Usa i tuoi dati
+              Fai il percorso
             </button>
           </div>
         }
