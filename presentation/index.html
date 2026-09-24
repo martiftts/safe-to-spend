@@ -169,6 +169,28 @@
   .chip { display: inline-block; font-size: 12px; padding: 4px 11px; border-radius: 99px; background: #f2ecff; color: var(--purple-dark); font-weight: 600; }
   .mock-caption { font-size: 12px; color: var(--faint); text-align: center; margin-top: 13px; letter-spacing: 0.04em; max-width: 372px; line-height: 1.5; }
 
+  /* ── barra segmentata: parte-di-un-tutto a due segmenti ──
+     Colori validati sul fondo #050008 in modalità scura: banda di
+     luminosità, chroma, separazione CVD (ΔE 29.1 deutan, 42.6 a visione
+     normale) e contrasto. La coppia rosa/verde, provata per prima,
+     falliva con ΔE 2.3 in deuteranopia: indistinguibile per chi ha quel
+     daltonismo. Le etichette dirette sono comunque presenti, così
+     l'identità non dipende mai dal solo colore. */
+  .segbar { display: flex; gap: 2px; height: 54px; margin-bottom: 13px; }
+  .seg { position: relative; display: flex; align-items: center; transition: filter 140ms; }
+  .seg:hover { filter: brightness(1.14); }
+  .seg.committed { background: #A100FF; border-radius: 5px 0 0 5px; }
+  .seg.free { background: #3FA86B; border-radius: 0 5px 5px 0; }
+  .seg .seg-v { font-size: 18px; font-weight: 700; color: #fff; padding-left: 16px; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; white-space: nowrap; }
+  .seg.free .seg-v { padding-left: 13px; }
+  .seg-legend { display: flex; gap: 32px; flex-wrap: wrap; }
+  .seg-legend .item { display: flex; align-items: baseline; gap: 9px; font-size: 14.5px; color: var(--muted); }
+  .seg-legend .sw { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; transform: translateY(1px); }
+  .seg-legend .sw.committed { background: #A100FF; }
+  .seg-legend .sw.free { background: #3FA86B; }
+  .segfig { margin: 0; }
+  .segfig figcaption { font-size: 12.5px; color: var(--faint); margin-bottom: 11px; letter-spacing: 0.03em; }
+
   .chain { display: flex; flex-direction: column; gap: 5px; }
   .ch-row { display: flex; align-items: baseline; justify-content: space-between; padding: 9px 14px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel); }
   .ch-row .l { font-size: 13.5px; }
@@ -253,12 +275,30 @@
       <div style="font-size:40px;font-weight:700;color:var(--green);letter-spacing:-0.03em;margin-top:4px;">290 €</div>
     </div>
   </div>
+
+  <figure class="segfig" style="margin-top:34px;">
+    <div class="segbar">
+      <div class="seg committed" style="flex:1550;" title="Già impegnati entro fine mese: 1.550 €">
+        <span class="seg-v">1.550 €</span>
+      </div>
+      <div class="seg free" style="flex:290;" title="Liberi: 290 €">
+        <span class="seg-v">290 €</span>
+      </div>
+    </div>
+    <div class="seg-legend">
+      <span class="item"><i class="sw committed"></i> Già impegnati entro fine mese &nbsp;<strong style="color:#fff;">84%</strong></span>
+      <span class="item"><i class="sw free"></i> Liberi &nbsp;<strong style="color:#fff;">16%</strong></span>
+    </div>
+  </figure>
 </section>
 
 <!-- 03 · i tre agenti ──────────────────────────────────────── -->
 <section class="slide">
   <span class="eyebrow">I tre agenti</span>
   <h2>Cosa fa ognuno, concretamente</h2>
+  <p class="lead" style="margin-bottom:22px;">
+    La soluzione è costruita su tre agenti, ciascuno con un compito preciso dentro l'app:
+  </p>
 
   <div class="agent">
     <div class="a-head"><div class="a-name"><span class="kind">Agente 1 · schermata «spese future»</span><span class="mono">intake</span></div><span class="tag">claude-opus-5</span></div>
