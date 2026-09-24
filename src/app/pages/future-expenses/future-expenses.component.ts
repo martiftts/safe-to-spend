@@ -11,30 +11,31 @@ import type { SpesaFutura } from '@schemas/household';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-gray-50 px-4 py-10">
-      <div class="max-w-lg mx-auto">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Spese future previste</h1>
-        <p class="text-gray-600 mb-8">
-          Aggiungi le spese che già conosci. Quei soldi sono già impegnati anche se sono ancora sul conto.
+    <div class="page">
+      <div class="page-inner">
+
+        <p class="eyebrow mb-6">Safe to Spend · Spese pianificate</p>
+        <h1 class="text-3xl font-bold mb-2">Cosa sai già che spenderai?</h1>
+        <p class="text-muted mb-8 leading-relaxed">
+          Quei soldi sono già impegnati, anche se sono ancora sul conto.
         </p>
 
         <!-- Lista spese future -->
         @if (speseFuture().length > 0) {
-          <div class="space-y-3 mb-6">
+          <div class="space-y-2 mb-5">
             @for (sf of speseFuture(); track sf.descrizione; let i = $index) {
-              <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between">
+              <div class="card-dark p-4 flex items-center justify-between">
                 <div>
-                  <p class="font-medium text-gray-900">{{ sf.descrizione }}</p>
-                  <p class="text-sm text-gray-500">
+                  <p class="font-medium text-white">{{ sf.descrizione }}</p>
+                  <p class="text-xs text-faint mt-0.5">
                     € {{ sf.importo.toFixed(0) }} · tra {{ sf.mesiMancanti }} mesi ·
-                    <span class="text-blue-600 font-medium">€ {{ (sf.importo / sf.mesiMancanti).toFixed(0) }}/mese</span>
+                    <span class="font-semibold" style="color:var(--brand-light)">€ {{ (sf.importo / sf.mesiMancanti).toFixed(0) }}/mese</span>
                   </p>
                 </div>
-                <button
-                  type="button"
-                  (click)="rimuovi(i)"
-                  class="text-gray-400 hover:text-red-500 transition-colors text-xl leading-none"
-                  aria-label="Rimuovi">×</button>
+                <button type="button" (click)="rimuovi(i)"
+                        class="text-faint hover:text-[#FF50A0] active:scale-[0.85] transition-all
+                               text-2xl leading-none w-8 h-8 flex items-center justify-center"
+                        aria-label="Rimuovi">×</button>
               </div>
             }
           </div>
@@ -42,68 +43,52 @@ import type { SpesaFutura } from '@schemas/household';
 
         <!-- Sinking fund totale -->
         @if (sinkingFund().totalMonthly > 0) {
-          <div class="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-200">
-            <p class="text-sm text-blue-700 font-medium">Accantonamento mensile totale</p>
-            <p class="text-2xl font-bold text-blue-900">€ {{ sinkingFund().totalMonthly.toFixed(0) }}/mese</p>
-            <p class="text-xs text-blue-600 mt-1">
-              Questa quota viene sottratta dal margine disponibile — è già impegnata.
-            </p>
+          <div class="rounded-2xl p-4 mb-5 flex justify-between items-center"
+               style="background:rgba(161,0,255,0.08);border:1px solid rgba(161,0,255,0.25)">
+            <div>
+              <p class="eyebrow mb-0.5" style="font-size:10px">Accantonamento totale</p>
+              <p class="text-2xl font-bold text-white">
+                € {{ sinkingFund().totalMonthly.toFixed(0) }}<span class="text-base font-normal text-muted">/mese</span>
+              </p>
+            </div>
+            <span class="text-2xl">🏦</span>
           </div>
         }
 
         <!-- Form nuova spesa -->
-        <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-          <h2 class="font-semibold text-gray-900 mb-4">Aggiungi una spesa</h2>
+        <div class="card-dark p-5 mb-5">
+          <h2 class="card-section-label mb-4">Aggiungi una voce</h2>
           <div class="space-y-3">
             <div>
-              <label class="block text-sm text-gray-600 mb-1">Cosa</label>
-              <input
-                type="text"
-                [(ngModel)]="nuovaDescrizione"
-                placeholder="es. Vacanza, auto, dentista"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="label-dark">Cosa</label>
+              <input type="text" [(ngModel)]="nuovaDescrizione"
+                     placeholder="Vacanza, auto, dentista…" class="input-dark">
             </div>
             <div class="flex gap-3">
               <div class="flex-1">
-                <label class="block text-sm text-gray-600 mb-1">Importo (€)</label>
-                <input
-                  type="number"
-                  [(ngModel)]="nuovoImporto"
-                  min="1"
-                  placeholder="1500"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="label-dark">Importo (€)</label>
+                <input type="number" [(ngModel)]="nuovoImporto" min="1" placeholder="1500" class="input-dark">
               </div>
               <div class="flex-1">
-                <label class="block text-sm text-gray-600 mb-1">Tra quanti mesi</label>
-                <input
-                  type="number"
-                  [(ngModel)]="nuoviMesi"
-                  min="1"
-                  max="120"
-                  placeholder="6"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="label-dark">Tra quanti mesi</label>
+                <input type="number" [(ngModel)]="nuoviMesi" min="1" max="120" placeholder="6" class="input-dark">
               </div>
             </div>
             @if (nuovaDescrizione && nuovoImporto > 0 && nuoviMesi > 0) {
-              <p class="text-sm text-blue-600">
+              <p class="text-sm font-medium" style="color:var(--brand-light)">
                 → accantonamento: € {{ (nuovoImporto / nuoviMesi).toFixed(0) }}/mese
               </p>
             }
-            <button
-              type="button"
-              (click)="aggiungi()"
-              [disabled]="!nuovaDescrizione || nuovoImporto <= 0 || nuoviMesi <= 0"
-              class="w-full bg-blue-600 disabled:bg-gray-300 text-white font-medium py-2 rounded-lg transition-colors">
-              Aggiungi
+            <button type="button" (click)="aggiungi()"
+                    [disabled]="!nuovaDescrizione || nuovoImporto <= 0 || nuoviMesi <= 0"
+                    class="btn-primary">
+              + Aggiungi
             </button>
           </div>
         </div>
 
-        <button
-          type="button"
-          (click)="avanti()"
-          class="w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
-          Vai al cruscotto
+        <button type="button" (click)="avanti()" class="btn-primary">
+          Vai al cruscotto →
         </button>
       </div>
     </div>

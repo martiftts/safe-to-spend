@@ -4,61 +4,132 @@
 
 @layer base {
   :root {
-    --brand:        #A100FF;
-    --brand-light:  #BE82FF;
-    --brand-dark:   #460073;
-    --rose:         #FF50A0;
-    --surface-bg:   #050008;
-    --muted:        rgba(255,255,255,0.62);
-    --faint:        rgba(255,255,255,0.38);
-    --line:         rgba(255,255,255,0.12);
-    --panel:        rgba(255,255,255,0.03);
+    --brand:       #A100FF;
+    --brand-light: #BE82FF;
+    --brand-dark:  #460073;
+    --rose:        #FF50A0;
+    --green:       #4ade80;
+    --amber:       #fbbf24;
+    --surface-bg:  #050008;
+    --muted:       rgba(255,255,255,0.62);
+    --faint:       rgba(255,255,255,0.38);
+    --line:        rgba(255,255,255,0.12);
+    --panel:       rgba(255,255,255,0.03);
   }
 
   html, body {
     @apply antialiased;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: #050008;
   }
 }
 
 @layer components {
-  /* Bottone primario — viola Accenture */
-  .btn-primary {
-    @apply bg-[#A100FF] hover:bg-[#8800d9] active:scale-95 text-white font-semibold
-           px-6 py-3 rounded-xl transition-all;
+
+  /* ── Layout ────────────────────────────────────────────── */
+
+  .page {
+    @apply min-h-screen text-white px-4 py-10;
+    background: var(--surface-bg);
   }
 
-  /* Bottone secondario — outline su sfondo scuro */
-  .btn-ghost {
-    @apply bg-white/10 hover:bg-white/20 active:scale-95 text-white font-semibold
-           px-6 py-3 rounded-xl transition-all border border-white/20;
+  .page-inner {
+    @apply max-w-lg mx-auto;
   }
 
-  /* Card su sfondo chiaro */
-  .card {
-    @apply bg-white rounded-xl border border-gray-200;
+  /* ── Tipografia ────────────────────────────────────────── */
+
+  .eyebrow {
+    @apply text-[11px] uppercase tracking-[0.25em];
+    color: var(--brand-light);
   }
 
-  /* Card su sfondo scuro */
-  .card-dark {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    @apply rounded-xl;
-  }
-
-  /* Testo sfumato brand */
   .text-brand-gradient {
-    background: linear-gradient(90deg, #BE82FF, #A100FF);
+    background: linear-gradient(90deg, var(--brand-light), var(--brand));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
-  /* Badge / eyebrow */
-  .eyebrow {
+  .text-muted  { color: var(--muted); }
+  .text-faint  { color: var(--faint); }
+
+  /* ── Cards ─────────────────────────────────────────────── */
+
+  .card-dark {
+    background: var(--panel);
     border: 1px solid var(--line);
-    background: rgba(255,255,255,0.05);
-    @apply inline-block rounded-full px-3 py-1 text-[10px] uppercase tracking-widest;
-    color: var(--muted);
+    @apply rounded-2xl;
+  }
+
+  .card-dark-header {
+    border-bottom: 1px solid var(--line);
+    @apply px-5 py-4;
+  }
+
+  .card-section-label {
+    @apply text-xs font-semibold uppercase tracking-widest;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* ── Form ──────────────────────────────────────────────── */
+
+  .input-dark {
+    @apply w-full rounded-xl px-4 py-3 text-sm text-white focus:outline-none;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--line);
+    placeholder-color: rgba(255,255,255,0.25);
+  }
+
+  .input-dark::placeholder { color: rgba(255,255,255,0.25); }
+
+  .label-dark {
+    @apply block text-xs mb-1.5;
+    color: rgba(255,255,255,0.40);
+  }
+
+  /* ── Buttons ───────────────────────────────────────────── */
+
+  .btn-primary {
+    @apply w-full font-semibold py-3.5 px-6 rounded-xl
+           active:scale-[0.97] transition-transform text-white;
+    background: var(--brand);
+  }
+  .btn-primary:not(:disabled):hover { background: #8800d9; }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost {
+    @apply w-full font-semibold py-3.5 px-6 rounded-xl
+           active:scale-[0.97] transition-transform text-white;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.13); }
+
+  .btn-inline {
+    @apply text-sm font-medium active:scale-[0.97] transition-transform;
+    color: var(--brand-light);
+  }
+
+  /* ── Toggle switch ──────────────────────────────────────── */
+
+  .toggle-track {
+    @apply relative inline-flex h-6 w-11 items-center rounded-full
+           active:scale-[0.97] transition-all flex-shrink-0;
+  }
+
+  .toggle-thumb {
+    @apply inline-block h-4 w-4 transform rounded-full bg-white
+           transition-transform shadow;
+  }
+
+  /* ── Preset pill ──────────────────────────────────────── */
+
+  .preset-pill {
+    @apply px-3 py-1.5 rounded-full text-xs font-medium border transition-all
+           active:scale-[0.97];
   }
 }

@@ -16,42 +16,37 @@ export interface DataSource {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-10">
-      <div class="w-full max-w-lg">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Accesso ai tuoi dati</h1>
-        <p class="text-gray-600 mb-8">
-          Dicci a quali informazioni puoi darci accesso. Puoi revocare in qualsiasi momento.
-        </p>
+    <div class="page flex flex-col items-center">
+      <div class="page-inner w-full">
 
-        <div class="space-y-4 mb-8">
+        <p class="eyebrow mb-8">Safe to Spend · Consenso ai dati</p>
+        <h1 class="text-3xl font-bold mb-2">Cosa condividi con noi</h1>
+        <p class="text-muted mb-8 leading-relaxed">Scegli a quali fonti dare accesso. Puoi revocare in qualsiasi momento.</p>
+
+        <div class="space-y-3 mb-8">
           @for (source of sources(); track source.id) {
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <div class="card-dark p-4 transition-colors"
+                 [style.background]="source.enabled ? 'rgba(161,0,255,0.08)' : 'var(--panel)'"
+                 [style.border-color]="source.enabled ? 'rgba(161,0,255,0.4)' : 'var(--line)'">
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                  <p class="font-semibold text-gray-900">{{ source.label }}</p>
-                  <p class="text-sm text-gray-500 mt-0.5">
-                    <span class="font-medium">Cosa:</span> {{ source.what }}
-                  </p>
-                  <p class="text-sm text-gray-500">
-                    <span class="font-medium">Perché:</span> {{ source.why }}
-                  </p>
+                  <p class="font-semibold text-white">{{ source.label }}</p>
+                  <p class="text-xs text-faint mt-1 leading-relaxed">{{ source.what }} · {{ source.why }}</p>
                 </div>
                 @if (source.required) {
-                  <span class="text-xs text-gray-400 mt-1 whitespace-nowrap">sempre attivo</span>
+                  <span class="text-[10px] uppercase tracking-widest whitespace-nowrap px-2 py-0.5 rounded-full mt-1"
+                        style="color:var(--brand);background:rgba(161,0,255,0.12)">richiesto</span>
                 } @else {
                   <button
                     type="button"
                     (click)="toggle(source.id)"
-                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors mt-1"
-                    [class.bg-blue-600]="source.enabled"
-                    [class.bg-gray-200]="!source.enabled"
+                    class="toggle-track mt-1"
+                    [style.background]="source.enabled ? 'var(--brand)' : 'rgba(255,255,255,0.15)'"
                     [attr.aria-pressed]="source.enabled"
                     [attr.aria-label]="'Attiva ' + source.label">
-                    <span
-                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                      [class.translate-x-6]="source.enabled"
-                      [class.translate-x-1]="!source.enabled">
-                    </span>
+                    <span class="toggle-thumb"
+                          [class.translate-x-6]="source.enabled"
+                          [class.translate-x-1]="!source.enabled"></span>
                   </button>
                 }
               </div>
@@ -59,16 +54,11 @@ export interface DataSource {
           }
         </div>
 
-        <p class="text-xs text-gray-400 mb-6">
-          Senza consenso aggiuntivo il flusso continua con i soli dati del conto principale.
+        <p class="text-faint text-xs mb-6 text-center">
+          Senza consenso aggiuntivo il flusso usa solo il conto principale.
         </p>
 
-        <button
-          type="button"
-          (click)="proceed()"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
-          Continua
-        </button>
+        <button type="button" (click)="proceed()" class="btn-primary">Continua</button>
       </div>
     </div>
   `,
