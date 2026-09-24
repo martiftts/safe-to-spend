@@ -43,12 +43,20 @@ import { ClaudeService } from '../../services/claude.service';
         </details>
       </div>
 
-      <button
-        (click)="start()"
-        class="bg-[#A100FF] hover:bg-[#8800d9] active:scale-95 text-white font-semibold px-10 py-3.5 rounded-xl transition-all text-base"
-      >
-        Inizia →
-      </button>
+      <div class="flex flex-col gap-3 w-full max-w-xs">
+        <button
+          (click)="start()"
+          class="bg-[#A100FF] hover:bg-[#8800d9] active:scale-95 text-white font-semibold px-10 py-3.5 rounded-xl transition-all text-base"
+        >
+          Questionario educativo →
+        </button>
+        <button
+          (click)="startBanking()"
+          class="bg-white/10 hover:bg-white/20 active:scale-95 text-white font-semibold px-10 py-3.5 rounded-xl transition-all text-base border border-white/20"
+        >
+          Flusso bancario →
+        </button>
+      </div>
 
       <div class="flex items-center gap-2 mt-14 flex-wrap justify-center text-xs text-white/25">
         <span class="px-3 py-1 border border-white/10 rounded-full">📝 Questionario</span>
@@ -77,5 +85,9 @@ export class WelcomePage {
       this.claudeService.setApiKey(this.apiKey.trim());
     }
     this.router.navigate(['/questionnaire']);
+  }
+
+  startBanking() {
+    this.router.navigate(['/consent']);
   }
 }

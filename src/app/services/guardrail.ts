@@ -8,6 +8,15 @@
  * Regole e razionale: ../../../agents/policies/
  */
 
+export type Surface = 'educational' | 'solver';
+
+export interface GuardrailOptions {
+  surface?: Surface;
+  allowed?: ReadonlySet<number>;
+  allowedCategories?: ReadonlySet<string>;
+  adviceRequestedAt?: Date | null;
+}
+
 export interface Violation {
   policy: 'no-advice' | 'no-moralizing' | 'numeric-grounding';
   detail: string;
@@ -106,15 +115,60 @@ export function checkGrounding(text: string, allowed: ReadonlySet<number>): Viol
     }));
 }
 
+const CATEGORIE_NEUTRE = ['casa', 'trasporti', 'alimentari', 'salute', 'abbonamenti', 'tempo libero', 'tempo_libero', 'altro'];
+
 /**
- * Esegue tutti i controlli. `allowed` va passato solo per i testi che possono
- * contenere cifre (step 3); omesso, il controllo numerico non viene eseguito.
+ * Solo in surface:solver. Verifica che il testo non nomini categorie
+ * che l'utente non ha dichiarato come leve comprimibili.
  */
-export function runGuardrail(text: string, allowed?: ReadonlySet<number>): GuardrailResult {
-  const violations = [
-    ...checkNoAdvice(text),
+export function checkCategoryLeakage(text: string, allowedCategories: ReadonlySet<string>): Violation[] {
+  return CATEGORIE_NEUTRE
+    .filter(cat => {
+      const canonicale = cat.replace(' ', '_');
+      return !allowedCategories.has(cat) && !allowedCategories.has(canonicale);
+    })
+    .filter(cat => w(cat.replace(' ', '[ _]')).test(text))
+    .map(cat => ({
+      policy: 'no-advice' as const,
+      detail: `categoria non dichiarata nelle leve: ${cat}`,
+    }));
+}
+
+/**
+ * Esegue tutti i controlli.
+ *
+ * Firma legacy compatibile: `runGuardrail(text, allowed?)` dove allowed è
+ * un ReadonlySet<number>. La firma estesa accetta GuardrailOptions.
+ *
+ * surface:'solver' richiede adviceRequestedAt valorizzato; senza,
+ * viene aggiunta una violazione di policy.
+ */
+export function runGuardrail(
+  text: string,
+  optionsOrAllowed?: GuardrailOptions | ReadonlySet<number>,
+): GuardrailResult {
+  const options: GuardrailOptions =
+    optionsOrAllowed instanceof Set
+      ? ({ allowed: optionsOrAllowed } satisfies GuardrailOptions)
+      : ((optionsOrAllowed ?? {}) as GuardrailOptions);
+
+  const { surface = 'educational', allowed, allowedCategories, adviceRequestedAt } = options;
+
+  const violations: Violation[] = [
+    // In solver mode, il no-advice classico non si applica: l'output è
+    // puramente calcolato entro le leve dichiarate dall'utente.
+    ...(surface === 'educational' ? checkNoAdvice(text) : []),
     ...checkNoMoralizing(text),
     ...(allowed ? checkGrounding(text, allowed) : []),
+    // Solver: richiede richiesta esplicita registrata (adviceRequestedAt).
+    ...(surface === 'solver' && !adviceRequestedAt
+      ? [{ policy: 'no-advice' as const, detail: 'surface:solver richiede adviceRequestedAt valorizzato' }]
+      : []),
+    // Solver: non può nominare categorie non nelle leve dichiarate.
+    ...(surface === 'solver' && allowedCategories
+      ? checkCategoryLeakage(text, allowedCategories)
+      : []),
   ];
+
   return { ok: violations.length === 0, violations };
 }
