@@ -16,39 +16,46 @@ export interface DataSource {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-10">
+    <div class="min-h-screen bg-[#050008] text-white flex flex-col items-center px-4 py-12">
       <div class="w-full max-w-lg">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Accesso ai tuoi dati</h1>
-        <p class="text-gray-600 mb-8">
-          Dicci a quali informazioni puoi darci accesso. Puoi revocare in qualsiasi momento.
+
+        <p class="text-[11px] uppercase tracking-[0.25em] text-[#BE82FF] mb-8">
+          Safe to Spend · Consenso ai dati
         </p>
 
-        <div class="space-y-4 mb-8">
+        <h1 class="text-3xl font-bold mb-2">
+          Cosa condividi con noi
+        </h1>
+        <p class="text-white/50 mb-8 leading-relaxed">
+          Scegli a quali fonti dare accesso. Puoi revocare in qualsiasi momento.
+        </p>
+
+        <div class="space-y-3 mb-8">
           @for (source of sources(); track source.id) {
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <div class="rounded-2xl border p-4 transition-colors"
+                 [style.background]="source.enabled ? 'rgba(161,0,255,0.08)' : 'rgba(255,255,255,0.03)'"
+                 [style.border-color]="source.enabled ? 'rgba(161,0,255,0.4)' : 'rgba(255,255,255,0.1)'">
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
-                  <p class="font-semibold text-gray-900">{{ source.label }}</p>
-                  <p class="text-sm text-gray-500 mt-0.5">
-                    <span class="font-medium">Cosa:</span> {{ source.what }}
-                  </p>
-                  <p class="text-sm text-gray-500">
-                    <span class="font-medium">Perché:</span> {{ source.why }}
+                  <p class="font-semibold text-white">{{ source.label }}</p>
+                  <p class="text-xs text-white/40 mt-1 leading-relaxed">
+                    {{ source.what }} · {{ source.why }}
                   </p>
                 </div>
                 @if (source.required) {
-                  <span class="text-xs text-gray-400 mt-1 whitespace-nowrap">sempre attivo</span>
+                  <span class="text-[10px] uppercase tracking-widest text-[#A100FF] mt-1 whitespace-nowrap bg-[#A100FF]/10 px-2 py-0.5 rounded-full">
+                    richiesto
+                  </span>
                 } @else {
                   <button
                     type="button"
                     (click)="toggle(source.id)"
-                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors mt-1"
-                    [class.bg-blue-600]="source.enabled"
-                    [class.bg-gray-200]="!source.enabled"
+                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-all mt-1 flex-shrink-0"
+                    [style.background]="source.enabled ? '#A100FF' : 'rgba(255,255,255,0.15)'"
                     [attr.aria-pressed]="source.enabled"
                     [attr.aria-label]="'Attiva ' + source.label">
                     <span
-                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow"
                       [class.translate-x-6]="source.enabled"
                       [class.translate-x-1]="!source.enabled">
                     </span>
@@ -59,14 +66,14 @@ export interface DataSource {
           }
         </div>
 
-        <p class="text-xs text-gray-400 mb-6">
-          Senza consenso aggiuntivo il flusso continua con i soli dati del conto principale.
+        <p class="text-xs text-white/25 mb-6 text-center">
+          Senza consenso aggiuntivo il flusso usa solo il conto principale.
         </p>
 
         <button
           type="button"
           (click)="proceed()"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+          class="w-full bg-[#A100FF] hover:bg-[#8800d9] active:scale-[0.98] text-white font-semibold py-3.5 px-6 rounded-xl transition-all text-base">
           Continua
         </button>
       </div>

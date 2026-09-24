@@ -20,45 +20,51 @@ const CATEGORIE_LABEL: Record<string, string> = {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-gray-50 px-4 py-10">
+    <div class="min-h-screen bg-[#050008] text-white px-4 py-10">
       <div class="max-w-lg mx-auto">
 
         @if (!goal()) {
-          <div class="bg-white rounded-xl p-6 text-center">
-            <p class="text-gray-600 mb-4">Devi prima impostare un obiettivo.</p>
+          <div class="rounded-2xl p-8 text-center" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10)">
+            <p class="text-white/50 mb-4">Devi prima impostare un obiettivo.</p>
             <button type="button" (click)="router.navigate(['/goals'])"
-              class="bg-blue-600 text-white px-6 py-2 rounded-lg">Vai agli obiettivi</button>
+              class="bg-[#A100FF] text-white px-6 py-2.5 rounded-xl font-semibold">
+              Vai agli obiettivi
+            </button>
           </div>
         } @else {
-          <h1 class="text-2xl font-bold text-gray-900 mb-2">Simulatore</h1>
-          <p class="text-gray-600 mb-6">
+          <p class="text-[11px] uppercase tracking-[0.25em] text-[#BE82FF] mb-6">Safe to Spend · Simulatore</p>
+          <h1 class="text-3xl font-bold mb-2">Quanto ci metti?</h1>
+          <p class="text-white/45 mb-6 leading-relaxed">
             Muovi gli slider per vedere come cambia la data di arrivo.
-            Puoi agire solo sulle categorie che hai marcato tu.
           </p>
 
-          <!-- Obiettivo -->
-          <div class="bg-white rounded-xl border border-gray-200 p-4 mb-4">
-            <p class="text-sm text-gray-500">Obiettivo</p>
-            <p class="font-bold text-gray-900 text-lg">{{ goal()!.cosa }}</p>
-            <p class="text-sm text-gray-600">€ {{ goal()!.importo.toLocaleString('it-IT') }} · entro {{ goal()!.mesi }} mesi</p>
+          <!-- Obiettivo card -->
+          <div class="rounded-2xl p-4 mb-5 flex items-center justify-between"
+               style="background:rgba(161,0,255,0.08);border:1px solid rgba(161,0,255,0.25)">
+            <div>
+              <p class="text-xs text-[#BE82FF] uppercase tracking-widest mb-0.5">Obiettivo</p>
+              <p class="font-bold text-white text-lg">{{ goal()!.cosa }}</p>
+              <p class="text-sm text-white/45">€ {{ goal()!.importo.toLocaleString('it-IT') }} · entro {{ goal()!.mesi }} mesi</p>
+            </div>
+            <span class="text-3xl">🎯</span>
           </div>
 
           <!-- Slider leve -->
           @if (leve().length > 0) {
-            <div class="bg-white rounded-xl border border-gray-200 p-4 mb-4">
-              <h2 class="font-semibold text-gray-900 mb-4">Le tue leve</h2>
-              <div class="space-y-4">
+            <div class="rounded-2xl p-5 mb-5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10)">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-white/50 mb-4">Le tue leve</h2>
+              <div class="space-y-5">
                 @for (leva of leve(); track leva.categoria) {
                   <div>
-                    <div class="flex justify-between text-sm mb-1">
-                      <span class="font-medium text-gray-800">{{ label(leva.categoria) }}</span>
-                      <span class="text-blue-600 font-medium">- € {{ getSlider(leva.categoria).toFixed(0) }}/mese</span>
+                    <div class="flex justify-between text-sm mb-2">
+                      <span class="font-medium text-white/80">{{ label(leva.categoria) }}</span>
+                      <span class="font-semibold" style="color:#FF50A0">- € {{ getSlider(leva.categoria).toFixed(0) }}/mese</span>
                     </div>
                     <input type="range" min="0" [max]="leva.maxSpesa" step="10"
                       [value]="getSlider(leva.categoria)"
                       (input)="setSlider(leva.categoria, +$any($event.target).value)"
-                      class="w-full accent-blue-600">
-                    <div class="flex justify-between text-xs text-gray-400">
+                      class="w-full accent-[#A100FF]">
+                    <div class="flex justify-between text-xs text-white/25 mt-1">
                       <span>€ 0</span><span>€ {{ leva.maxSpesa.toFixed(0) }}</span>
                     </div>
                   </div>
@@ -67,48 +73,39 @@ const CATEGORIE_LABEL: Record<string, string> = {
             </div>
           }
 
-          <!-- Risultati -->
-          <div class="space-y-3 mb-6">
-            <!-- Scenario zero riduzioni (riferimento) -->
-            <div class="bg-gray-100 rounded-xl p-4">
-              <p class="text-xs text-gray-500 mb-1">A ritmo invariato</p>
-              <p class="font-bold text-gray-700 text-xl">
-                @if (mesiSenzaRiduzioni() > 0) {
-                  {{ dataArrivo(mesiSenzaRiduzioni()) }}
-                  <span class="text-sm font-normal text-gray-500">({{ mesiSenzaRiduzioni().toFixed(0) }} mesi)</span>
-                } @else {
-                  Il margine attuale non copre l'obiettivo
-                }
-              </p>
-            </div>
-
-            <!-- Scenario con riduzioni -->
-            <div class="rounded-xl p-4"
-                 [class.bg-green-50]="mesiConRiduzioni() < mesiSenzaRiduzioni()"
-                 [class.border-green-200]="mesiConRiduzioni() < mesiSenzaRiduzioni()"
-                 [class.border]="mesiConRiduzioni() < mesiSenzaRiduzioni()"
-                 [class.bg-gray-100]="mesiConRiduzioni() >= mesiSenzaRiduzioni()">
-              <p class="text-xs text-gray-500 mb-1">Con le riduzioni che hai indicato</p>
-              @if (riduzioneTotale() > 0) {
-                <p class="font-bold text-gray-900 text-xl">
-                  @if (mesiConRiduzioni() > 0) {
-                    {{ dataArrivo(mesiConRiduzioni()) }}
-                    <span class="text-sm font-normal text-gray-500">({{ mesiConRiduzioni().toFixed(0) }} mesi)</span>
-                  } @else {
-                    L'obiettivo non è raggiungibile con queste riduzioni
-                  }
-                </p>
-                <p class="text-sm text-gray-600 mt-1">
-                  Risparmio aggiuntivo: € {{ riduzioneTotale().toFixed(0) }}/mese
-                </p>
+          <!-- Risultati affiancati -->
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="rounded-2xl p-4" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10)">
+              <p class="text-[10px] uppercase tracking-widest text-white/40 mb-2">A ritmo invariato</p>
+              @if (mesiSenzaRiduzioni() > 0) {
+                <p class="font-bold text-white text-lg leading-tight">{{ dataArrivo(mesiSenzaRiduzioni()) }}</p>
+                <p class="text-xs text-white/35 mt-1">{{ mesiSenzaRiduzioni().toFixed(0) }} mesi</p>
               } @else {
-                <p class="text-sm text-gray-500">Nessuna riduzione selezionata — stessa data di riferimento.</p>
+                <p class="text-sm text-[#FF50A0]">Margine non sufficiente</p>
+              }
+            </div>
+            <div class="rounded-2xl p-4 transition-all"
+                 [style.background]="riduzioneTotale() > 0 && mesiConRiduzioni() < mesiSenzaRiduzioni() ? 'rgba(74,222,128,0.08)' : 'rgba(255,255,255,0.05)'"
+                 [style.border]="riduzioneTotale() > 0 && mesiConRiduzioni() < mesiSenzaRiduzioni() ? '1px solid rgba(74,222,128,0.3)' : '1px solid rgba(255,255,255,0.10)'">
+              <p class="text-[10px] uppercase tracking-widest mb-2"
+                 [style.color]="riduzioneTotale() > 0 ? '#4ade80' : 'rgba(255,255,255,0.4)'">
+                Con le tue riduzioni
+              </p>
+              @if (riduzioneTotale() > 0) {
+                @if (mesiConRiduzioni() > 0) {
+                  <p class="font-bold text-white text-lg leading-tight">{{ dataArrivo(mesiConRiduzioni()) }}</p>
+                  <p class="text-xs mt-1" style="color:#4ade80">{{ mesiConRiduzioni().toFixed(0) }} mesi · -€ {{ riduzioneTotale().toFixed(0) }}/m</p>
+                } @else {
+                  <p class="text-sm" style="color:#FF50A0">Non raggiungibile</p>
+                }
+              } @else {
+                <p class="text-sm text-white/30">Muovi gli slider</p>
               }
             </div>
           </div>
 
-          <!-- Disclaimer fisso -->
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+          <!-- Disclaimer -->
+          <div class="rounded-xl p-4 text-xs" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);color:rgba(251,191,36,0.7)">
             Questi numeri derivano dall'obiettivo e dai limiti che hai indicato tu.
             Non sono una raccomandazione finanziaria.
           </div>
