@@ -52,11 +52,24 @@
   .counter { position: fixed; bottom: 20px; right: 30px; z-index: 50; font-size: 10.5px; letter-spacing: 0.2em; color: var(--faint); font-variant-numeric: tabular-nums; pointer-events: none; }
   .hint { position: fixed; bottom: 20px; left: 30px; z-index: 50; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.22); pointer-events: none; }
 
-  /* ── split: schermata a sinistra, macchina agentica a destra ── */
-  .split { display: grid; grid-template-columns: 290px 1fr; gap: 44px; align-items: center; }
+  /* ── split: l'app domina, la macchina agentica sta in un trafiletto ── */
+  .split { display: grid; grid-template-columns: 396px 1fr; gap: 52px; align-items: center; }
   .split .left { display: flex; flex-direction: column; align-items: center; }
   .split .right { min-width: 0; }
-  .divider { position: absolute; left: calc(52px + 290px + 22px); top: 12%; bottom: 12%; width: 1px; background: linear-gradient(180deg, transparent, var(--line) 18%, var(--line) 82%, transparent); }
+  .divider { position: absolute; left: calc(52px + 396px + 26px); top: 14%; bottom: 14%; width: 1px; background: linear-gradient(180deg, transparent, var(--line) 18%, var(--line) 82%, transparent); }
+
+  /* trafiletto dei componenti coinvolti */
+  .strip {
+    border: 1px solid var(--line); background: var(--panel);
+    border-radius: 12px; padding: 13px 16px; margin-top: 26px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .strip .s-k {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--faint); font-weight: 600; flex-shrink: 0;
+  }
+  .strip .s-sep { color: rgba(255,255,255,0.16); }
+  .strip .s-note { font-size: 12.5px; color: var(--muted); width: 100%; margin-top: 2px; }
 
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; align-items: start; }
   .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -114,39 +127,39 @@
   .arrow { color: var(--faint); font-size: 15px; padding-left: 10px; }
 
   /* ── mockup telefono ── */
-  .phone { width: 272px; border: 1px solid rgba(255,255,255,0.16); border-radius: 26px; background: #0d0616; padding: 11px 9px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); }
-  .phone .bar { height: 4px; width: 58px; background: rgba(255,255,255,0.18); border-radius: 99px; margin: 2px auto 12px; }
-  .screen { background: #fbfaff; border-radius: 16px; padding: 16px 13px; color: #14101c; min-height: 426px; display: flex; flex-direction: column; }
-  .screen .s-eyebrow { font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: #8b7fa3; font-weight: 700; }
-  .screen h5 { font-size: 15.5px; margin: 6px 0 8px; font-weight: 700; letter-spacing: -0.02em; color: #14101c; line-height: 1.22; }
-  .screen p { font-size: 10.5px; color: #5c5370; margin: 0 0 10px; line-height: 1.5; max-width: none; }
-  .row-tog { display: flex; align-items: center; justify-content: space-between; border: 1px solid #e3ddf0; border-radius: 9px; padding: 8px 10px; margin-bottom: 6px; background: #fff; gap: 8px; }
-  .row-tog .rt { font-size: 10.5px; font-weight: 600; color: #2f2740; }
-  .row-tog .rs { font-size: 9px; color: #8b7fa3; }
-  .tog { width: 28px; height: 16px; border-radius: 99px; background: #ded7ee; position: relative; flex-shrink: 0; }
+  .phone { width: 372px; border: 1px solid rgba(255,255,255,0.16); border-radius: 32px; background: #0d0616; padding: 14px 12px; box-shadow: 0 28px 70px rgba(0,0,0,0.6); }
+  .phone .bar { height: 5px; width: 76px; background: rgba(255,255,255,0.18); border-radius: 99px; margin: 3px auto 15px; }
+  .screen { background: #fbfaff; border-radius: 20px; padding: 21px 18px; color: #14101c; min-height: 556px; display: flex; flex-direction: column; }
+  .screen .s-eyebrow { font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #8b7fa3; font-weight: 700; }
+  .screen h5 { font-size: 20px; margin: 8px 0 11px; font-weight: 700; letter-spacing: -0.02em; color: #14101c; line-height: 1.22; }
+  .screen p { font-size: 13.5px; color: #5c5370; margin: 0 0 13px; line-height: 1.5; max-width: none; }
+  .row-tog { display: flex; align-items: center; justify-content: space-between; border: 1px solid #e3ddf0; border-radius: 11px; padding: 11px 13px; margin-bottom: 8px; background: #fff; gap: 10px; }
+  .row-tog .rt { font-size: 13.5px; font-weight: 600; color: #2f2740; }
+  .row-tog .rs { font-size: 11.5px; color: #8b7fa3; }
+  .tog { width: 36px; height: 21px; border-radius: 99px; background: #ded7ee; position: relative; flex-shrink: 0; }
   .tog.on { background: var(--purple); }
-  .tog::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 99px; background: #fff; }
-  .tog.on::after { left: auto; right: 2px; }
-  .cat { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
-  .cat .cn { font-size: 10px; color: #2f2740; width: 64px; flex-shrink: 0; }
-  .cat .cb { height: 6px; border-radius: 99px; background: var(--purple); opacity: 0.75; }
-  .cat .cv { font-size: 9.5px; color: #6a6180; margin-left: auto; font-variant-numeric: tabular-nums; }
-  .big-num { font-size: 33px; font-weight: 700; letter-spacing: -0.03em; color: var(--purple-dark); line-height: 1; margin: 3px 0 1px; }
-  .mini-chain { font-size: 9.5px; color: #6a6180; line-height: 1.9; font-variant-numeric: tabular-nums; }
+  .tog::after { content: ""; position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 99px; background: #fff; }
+  .tog.on::after { left: auto; right: 3px; }
+  .cat { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+  .cat .cn { font-size: 13px; color: #2f2740; width: 86px; flex-shrink: 0; }
+  .cat .cb { height: 8px; border-radius: 99px; background: var(--purple); opacity: 0.75; }
+  .cat .cv { font-size: 12.5px; color: #6a6180; margin-left: auto; font-variant-numeric: tabular-nums; }
+  .big-num { font-size: 46px; font-weight: 700; letter-spacing: -0.03em; color: var(--purple-dark); line-height: 1; margin: 5px 0 2px; }
+  .mini-chain { font-size: 13px; color: #6a6180; line-height: 1.95; font-variant-numeric: tabular-nums; }
   .mini-chain .neg { color: #c2185b; }
   .mini-chain .eq { color: var(--purple-dark); font-weight: 700; }
-  .btn { background: #14101c; color: #fff; border-radius: 9px; padding: 9px; text-align: center; font-size: 11px; font-weight: 600; margin-top: auto; }
-  .slider { margin-bottom: 10px; }
-  .slider .sl-top { display: flex; justify-content: space-between; font-size: 10px; color: #2f2740; margin-bottom: 4px; }
-  .slider .sl-track { height: 5px; border-radius: 99px; background: #e3ddf0; position: relative; }
-  .slider .sl-fill { height: 5px; border-radius: 99px; background: var(--purple); }
-  .slider .sl-knob { width: 11px; height: 11px; border-radius: 99px; background: #fff; border: 2px solid var(--purple); position: absolute; top: -3px; }
-  .res { background: #f2ecff; border: 1px solid #ddd0f5; border-radius: 10px; padding: 10px 11px; }
-  .res .r1 { font-size: 9.5px; color: #6a6180; }
-  .res .r2 { font-size: 14px; font-weight: 700; color: var(--purple-dark); }
-  .disc { font-size: 8px; color: #8b7fa3; line-height: 1.5; margin-top: 8px; }
-  .chip { display: inline-block; font-size: 9px; padding: 2px 7px; border-radius: 99px; background: #f2ecff; color: var(--purple-dark); font-weight: 600; }
-  .mock-caption { font-size: 10.5px; color: var(--faint); text-align: center; margin-top: 10px; letter-spacing: 0.04em; max-width: 272px; line-height: 1.5; }
+  .btn { background: #14101c; color: #fff; border-radius: 11px; padding: 12px; text-align: center; font-size: 14px; font-weight: 600; margin-top: auto; }
+  .slider { margin-bottom: 13px; }
+  .slider .sl-top { display: flex; justify-content: space-between; font-size: 13px; color: #2f2740; margin-bottom: 6px; }
+  .slider .sl-track { height: 6px; border-radius: 99px; background: #e3ddf0; position: relative; }
+  .slider .sl-fill { height: 6px; border-radius: 99px; background: var(--purple); }
+  .slider .sl-knob { width: 14px; height: 14px; border-radius: 99px; background: #fff; border: 2px solid var(--purple); position: absolute; top: -4px; }
+  .res { background: #f2ecff; border: 1px solid #ddd0f5; border-radius: 12px; padding: 13px 14px; }
+  .res .r1 { font-size: 12px; color: #6a6180; }
+  .res .r2 { font-size: 19px; font-weight: 700; color: var(--purple-dark); }
+  .disc { font-size: 10.5px; color: #8b7fa3; line-height: 1.5; margin-top: 11px; }
+  .chip { display: inline-block; font-size: 12px; padding: 4px 11px; border-radius: 99px; background: #f2ecff; color: var(--purple-dark); font-weight: 600; }
+  .mock-caption { font-size: 12px; color: var(--faint); text-align: center; margin-top: 13px; letter-spacing: 0.04em; max-width: 372px; line-height: 1.5; }
 
   .chain { display: flex; flex-direction: column; gap: 5px; }
   .ch-row { display: flex; align-items: baseline; justify-content: space-between; padding: 9px 14px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel); }
@@ -310,30 +323,6 @@
   </p>
 </section>
 
-<!-- 03b · il flusso ────────────────────────────────────────── -->
-<section class="slide">
-  <span class="eyebrow">La macchina</span>
-  <h2>Chi produce quale schermata</h2>
-  <div class="flow" style="max-width:920px;">
-    <div class="node det"><span><span class="n-name">Schermata 1 · Consenso</span><br /><span class="n-sub">interfaccia e stato · nessun componente agentico</span></span><span class="tag det">solo codice</span></div>
-    <div class="arrow">↓</div>
-    <div class="node ai"><span><span class="n-name">Schermata 2 · Categorizzazione</span><br /><span class="n-sub">agente <span class="mono">categorizer</span> + skill <span class="mono">recurrence</span></span></span><span class="tag">haiku-4-5</span></div>
-    <div class="arrow">↓</div>
-    <div class="node ai"><span><span class="n-name">Schermata 3 · Spese future</span><br /><span class="n-sub">agente <span class="mono">intake</span> · unico punto di escalation umana</span></span><span class="tag">opus-5</span></div>
-    <div class="arrow">↓</div>
-    <div class="node det"><span><span class="n-name">Schermata 4 · Cruscotto</span><br /><span class="n-sub">skill <span class="mono">engine</span> per i numeri, agente <span class="mono">narrator</span> per le frasi</span></span><span class="tag">haiku-4-5</span></div>
-    <div class="arrow">↓</div>
-    <div class="node det"><span><span class="n-name">Schermata 5 · Obiettivo e simulazione</span><br /><span class="n-sub">skill <span class="mono">solver</span> · nessun modello coinvolto</span></span><span class="tag det">solo codice</span></div>
-    <div class="arrow">↓</div>
-    <div class="node det"><span><span class="n-name">Su ogni testo, prima dello schermo</span><br /><span class="n-sub">skill <span class="mono">grounding</span> + skill <span class="mono">guardrail</span></span></span><span class="tag det">zero token</span></div>
-  </div>
-  <p style="margin-top:24px;font-size:15px;">
-    <strong>Due schermate su cinque non chiamano alcun modello</strong>, e la più importante — il cruscotto —
-    prende i numeri dal codice e dall'agente solo le parole. È il motivo per cui l'app resta usabile
-    anche quando la rete non c'è.
-  </p>
-</section>
-
 <!-- 04 · consenso ──────────────────────────────────────────── -->
 <section class="slide split">
   <div class="divider"></div>
@@ -354,21 +343,22 @@
     <div class="mock-caption">Un interruttore per fonte, non un consenso unico</div>
   </div>
   <div class="right">
-    <span class="eyebrow">Schermata 1 · chi la produce</span>
-    <h2><span class="mono" style="font-size:28px;color:var(--green);">consent</span></h2>
-    <div class="agent det">
-      <div class="a-head"><div class="a-name"><span class="kind">Componente</span>Nessun modello</div><span class="tag det">deterministico</span></div>
-      <div class="a-body">Chiedere un permesso non richiede un LLM. È il primo punto in cui la scelta dello strumento conta: qui un agente sarebbe stato decorazione.</div>
-      <div class="meta">
-        <div class="meta-row"><span class="k">Schema</span><span class="v mono">DataSource[]</span></div>
-        <div class="meta-row"><span class="k">Stato</span><span class="v">consenso per fonte, revocabile, serializzato</span></div>
-        <div class="meta-row"><span class="k">Fallback</span><span class="v">senza consenso si prosegue col solo conto principale</span></div>
-      </div>
-    </div>
-    <div class="panel accent">
-      <h4>Privacy by design, non per dichiarazione</h4>
-      <p>Nessun dato identificativo entra nel sistema. È l'assenza di quei campi
-      a rendere possibile tenere tutto lato client, senza database — non una promessa nell'informativa.</p>
+    <span class="eyebrow">Schermata 1</span>
+    <h2>Il permesso si dà<br />una fonte alla volta</h2>
+    <p class="lead">L'app della banca ha già i dati del conto principale. Per tutto il resto —
+    un mutuo acceso altrove, un secondo conto, un finanziamento — chiede.</p>
+    <p>Non un consenso unico da accettare in blocco: <strong>un interruttore per fonte</strong>,
+    ciascuno con scritto cosa viene letto e a cosa serve. Revocabile in qualsiasi momento.</p>
+    <p>Se l'utente non concede nulla, il percorso continua lo stesso con i soli dati che la banca
+    già possiede. <strong>Negare non è un vicolo cieco.</strong></p>
+    <p style="color:rgba(255,255,255,0.8);">Nome, IBAN e codice fiscale non vengono mai chiesti:
+    non servono a nessun calcolo. È la loro assenza a permettere di tenere tutto nel browser,
+    senza database.</p>
+    <div class="strip">
+      <span class="s-k">Componenti</span>
+      <span class="tag det">nessun modello</span>
+      <span class="s-sep">·</span>
+      <span class="s-note" style="width:auto;margin:0;">chiedere un permesso non richiede un LLM</span>
     </div>
   </div>
 </section>
@@ -397,27 +387,21 @@
     <div class="mock-caption">Etichette descrittive. Mai «superfluo» o «voluttuario».</div>
   </div>
   <div class="right">
-    <span class="eyebrow">Schermata 2 · chi la produce</span>
-    <h2><span class="mono" style="font-size:28px;">categorizer</span></h2>
-    <div class="agent">
-      <div class="a-head"><div class="a-name"><span class="kind">Agente</span>Descrizione → categoria</div><span class="tag">claude-haiku-4-5</span></div>
-      <div class="a-body">«CONAD VIA ROMA 42», «PAYPAL *SPOTIFY», «PAGOBANCOMAT 0412». Normalizzare descrizioni sporche è un compito linguistico vero — ma vincolato a sette classi.</div>
-      <div class="meta">
-        <div class="meta-row"><span class="k">Ingresso</span><span class="v">solo le descrizioni <em>non</em> già in tabella</span></div>
-        <div class="meta-row"><span class="k">Uscita</span><span class="v mono">{ category, confidence }</span> · Zod</div>
-        <div class="meta-row"><span class="k">Policy</span><span class="v"><span class="tag pol">no-moralizing</span> etichette descrittive, mai valutative</span></div>
-        <div class="meta-row"><span class="k">Fallback</span><span class="v">categoria <span class="mono">altro</span>, mai un'ipotesi</span></div>
-      </div>
-    </div>
-    <div class="agent det">
-      <div class="a-head"><div class="a-name"><span class="kind">Skill deterministica</span>Rilevamento ricorrenze</div><span class="tag det">nessun LLM</span></div>
-      <div class="a-body">Stesso importo, stessa cadenza, stesso esercente. È pattern matching su date: un modello qui sbaglierebbe di più e costerebbe.</div>
-    </div>
-    <div class="panel">
-      <h4>Il risparmio è architetturale</h4>
-      <p>Una tabella di corrispondenze copre gli esercenti già visti. Il modello viene chiamato
-      <strong>solo sulle descrizioni nuove</strong>, e il risultato entra in tabella.
-      Al secondo caricamento le chiamate crollano.</p>
+    <span class="eyebrow">Schermata 2</span>
+    <h2>Dove vanno davvero<br />i soldi</h2>
+    <p class="lead">Sei mesi di movimenti diventano sette voci leggibili. Nessuno legge
+    trecento righe di estratto conto: tutti guardano sette barre.</p>
+    <p>Le etichette sono <strong>descrittive, mai valutative</strong>. Non esiste una categoria
+    «superfluo»: da un movimento bancario non si può sapere se una cena era un capriccio
+    o il compleanno di tua madre.</p>
+    <p>In fondo, la riga che sorprende quasi tutti: <strong>gli addebiti automatici</strong>.
+    Quattro abbonamenti che tornano identici ogni mese, e che nessuno ricorda di avere.</p>
+    <div class="strip">
+      <span class="s-k">Componenti</span>
+      <span class="tag">categorizer · haiku</span>
+      <span class="tag det">recurrence</span>
+      <span class="s-note">Il modello classifica solo le descrizioni mai viste prima: le altre
+      sono già in tabella. Le ricorrenze le trova il codice, confrontando importi e date.</span>
     </div>
   </div>
 </section>
@@ -446,30 +430,25 @@
     <div class="mock-caption">L'unico punto in cui il sistema si ferma e chiede</div>
   </div>
   <div class="right">
-    <span class="eyebrow">Schermata 3 · chi la produce</span>
-    <h2><span class="mono" style="font-size:28px;">intake</span></h2>
-    <div class="agent">
-      <div class="a-head"><div class="a-name"><span class="kind">Agente</span>Linguaggio libero → dati strutturati</div><span class="tag">claude-opus-5</span></div>
-      <div class="a-body">«a giugno, sui milleduecento» → <span class="mono">{ importo: 1200, mesi: 6 }</span>.
-      Richiede inferenza temporale, disambiguazione e — la parte difficile — <em>riconoscere di non essere sicuro</em>.</div>
-      <div class="meta">
-        <div class="meta-row"><span class="k">Uscita</span><span class="v mono">{ patch, uncertain[], missing[], question }</span></div>
-        <div class="meta-row"><span class="k">Formato</span><span class="v">output strutturato Zod, non parsing di testo</span></div>
-        <div class="meta-row"><span class="k">Policy</span><span class="v"><span class="tag pol">escalation</span> 3 domande per campo, poi form</span></div>
-        <div class="meta-row"><span class="k">Fallback</span><span class="v">campi strutturati classici</span></div>
-      </div>
-    </div>
-    <div class="panel accent">
-      <h4>Perché il modello capace proprio qui</h4>
-      <p>È l'unico punto in cui un errore <strong>non è recuperabile</strong>: un importo estratto male
-      produce un budget sbagliato che sembra plausibile, e nessuno se ne accorge.
-      Il tiering non è uniforme perché il rischio non lo è.</p>
-    </div>
-    <div class="panel warn">
-      <h4>Escalation umana, non cortesia</h4>
-      <p>Un valore incerto <strong>non entra nel profilo</strong>: viene mostrato con la frase da cui
-      è stato dedotto, e aspetta conferma. È il punto in cui un'estrazione sbagliata
-      verrebbe altrimenti propagata a tutti i calcoli a valle.</p>
+    <span class="eyebrow">Schermata 3</span>
+    <h2>L'unica cosa che<br />la banca non sa</h2>
+    <p class="lead">I movimenti raccontano il passato. Le spese che una persona ha già in testa —
+    la vacanza, il dentista, l'auto da cambiare — non sono da nessuna parte.</p>
+    <p>Si scrivono come vengono, a parole. <em>«A giugno andiamo in vacanza, sui milleduecento euro.»</em>
+    Nessun campo da compilare, nessuna etichetta bancaria.</p>
+    <p><strong>E se qualcosa non è chiaro, l'app si ferma e chiede.</strong>
+    «Sui milleduecento» è una stima, non un importo: prima di usarla nei calcoli vuole una conferma.
+    È l'unico punto dell'intero percorso in cui il sistema interrompe l'utente.</p>
+    <p style="color:rgba(255,255,255,0.8);">Ogni spesa futura diventa una quota mensile:
+    1.200 € fra sei mesi sono <strong>200 € al mese che da oggi non sono più disponibili</strong>,
+    anche se sono ancora sul conto.</p>
+    <div class="strip">
+      <span class="s-k">Componenti</span>
+      <span class="tag">intake · opus-5</span>
+      <span class="tag pol">escalation</span>
+      <span class="s-note">È l'unico punto in cui un errore non è recuperabile: un importo capito
+      male produce un budget sbagliato ma plausibile. Per questo il modello più capace, e per questo
+      la richiesta di conferma.</span>
     </div>
   </div>
 </section>
@@ -502,28 +481,25 @@
     <div class="mock-caption">Numero, significato e formula: sempre insieme</div>
   </div>
   <div class="right">
-    <span class="eyebrow">Schermata 4 · chi la produce</span>
-    <h2><span class="mono" style="font-size:26px;color:var(--green);">engine</span> <span style="color:var(--faint);font-size:20px;">+</span> <span class="mono" style="font-size:26px;">narrator</span></h2>
-    <div class="agent det">
-      <div class="a-head"><div class="a-name"><span class="kind">Motore</span>Tutti i numeri della schermata</div><span class="tag det">deterministico</span></div>
-      <div class="a-body">Catena delle sottrazioni, accantonamento, scala OCSE, quota impegnata, timeline di liberazione. Codice testato con valori calcolati a mano.</div>
-      <div class="meta">
-        <div class="meta-row"><span class="k">Uscita</span><span class="v mono">BudgetResult</span> · ogni scalino con la sua formula</div>
-        <div class="meta-row"><span class="k">Test</span><span class="v">quattro profili, incluso il margine negativo</span></div>
-      </div>
-    </div>
-    <div class="agent">
-      <div class="a-head"><div class="a-name"><span class="kind">Agente</span>Numeri → frasi</div><span class="tag">haiku-4-5 · effort low</span></div>
-      <div class="a-body">Riceve un indicatore per chiamata, già calcolato. <strong>Non calcola: riformula.</strong> Un indicatore per volta, così l'insieme numerico ammesso resta piccolo.</div>
-      <div class="meta">
-        <div class="meta-row"><span class="k">Cache</span><span class="v"><span class="mono">cache_control: ephemeral</span> sul prompt, identico ogni volta</span></div>
-        <div class="meta-row"><span class="k">Policy</span><span class="v"><span class="tag pol">no-advice</span> <span class="tag pol">numeric-grounding</span></span></div>
-        <div class="meta-row"><span class="k">Fallback</span><span class="v">template con slot numerici, corretti per costruzione</span></div>
-      </div>
-    </div>
-    <div class="agent det">
-      <div class="a-head"><div class="a-name"><span class="kind">Verifica</span>Grounding numerico</div><span class="tag det">zero token</span></div>
-      <div class="a-body">Estrae le cifre dal testo generato, le normalizza dal formato italiano e verifica che appartengano ai valori calcolati. Se il modello ne inventa una, l'output è rifiutato.</div>
+    <span class="eyebrow">Schermata 4</span>
+    <h2>Un numero solo,<br />e da dove viene</h2>
+    <p class="lead">Tredici euro e trentatré. È quanto resta per oggi, dopo che tutto il resto
+    è stato messo da parte.</p>
+    <p>Sotto, la catena che ci arriva: il reddito che scende scalino dopo scalino fino allo spazio
+    reale. <strong>L'utente non legge un risultato: guarda il proprio stipendio ridursi</strong>,
+    e impara la differenza fra quanto guadagna e quanto ha davvero a disposizione.</p>
+    <p>Ogni scalino si apre e mostra tre cose: il numero, cosa significa, e la formula che lo produce.
+    Niente è un'affermazione da prendere per buona.</p>
+    <p style="color:rgba(255,255,255,0.8);">In fondo, l'unico sguardo al futuro che l'app si concede:
+    quando finisce una rata e quanti soldi si liberano. Un fatto aritmetico, non una promessa.</p>
+    <div class="strip">
+      <span class="s-k">Componenti</span>
+      <span class="tag det">engine</span>
+      <span class="tag">narrator · haiku</span>
+      <span class="tag det">grounding</span>
+      <span class="s-note">I numeri li calcola il codice. Il modello riceve una cifra già pronta
+      e scrive la frase attorno. Prima che il testo arrivi a schermo, ogni cifra viene riconfrontata
+      con i calcoli: se non c'è, il testo viene buttato.</span>
     </div>
   </div>
 </section>
@@ -565,22 +541,25 @@
     <div class="mock-caption">Nessuna categoria è comprimibile per default</div>
   </div>
   <div class="right">
-    <span class="eyebrow">Schermata 5 · chi la produce</span>
-    <h2><span class="mono" style="font-size:26px;color:var(--green);">solver</span> <span style="color:var(--faint);font-size:20px;">+</span> <span class="mono" style="font-size:26px;">guardrail</span></h2>
-    <div class="agent det">
-      <div class="a-head"><div class="a-name"><span class="kind">Motore</span>Obiettivo → date</div><span class="tag det">deterministico</span></div>
-      <div class="a-body">Divario mensile, data di arrivo a ritmo invariato, data con le riduzioni dichiarate, combinazioni delle leve che chiudono il divario. Aritmetica, non inferenza.</div>
-    </div>
-    <div class="agent det">
-      <div class="a-head"><div class="a-name"><span class="kind">Gate</span>Richiesta esplicita</div><span class="tag det"><span class="mono">adviceRequestedAt</span></span></div>
-      <div class="a-body">Nessun output del solver esiste senza un'azione dell'utente registrata in stato. Non è un dettaglio di UX: è il dato che rende il confine <em>ispezionabile</em>, non solo dichiarato.</div>
-    </div>
-    <div class="agent det">
-      <div class="a-head"><div class="a-name"><span class="kind">Filtro</span>Guardrail, modalità solver</div><span class="tag det">zero token</span></div>
-      <div class="a-body">Ammette il condizionale sulle leve dichiarate. <strong>Continua a bloccare</strong>: moralismo, lodi, cifre non verificate, nomi di prodotti — e qualunque categoria che l'utente non abbia marcato.</div>
-      <div class="meta">
-        <div class="meta-row"><span class="k">Policy</span><span class="v"><span class="tag pol">no-advice § eccezione solver</span></span></div>
-      </div>
+    <span class="eyebrow">Schermata 5</span>
+    <h2>L'obiettivo è suo.<br />Le leve anche.</h2>
+    <p class="lead">Seimila euro per cambiare l'auto. A ritmo invariato si arriva a marzo 2028.
+    La domanda è cosa si può fare, e chi decide.</p>
+    <p><strong>Nessuna categoria è comprimibile per default.</strong> L'app non propone di tagliare
+    il tempo libero: aspetta che sia l'utente a dire quali voci è disposto a toccare, e fino a che punto.
+    Gli alimentari restano fermi finché non li muove lui.</p>
+    <p>Poi calcola. Con le riduzioni indicate si arriva a dicembre 2027: tre mesi prima.
+    E se non basta, dice quanto manca — <strong>quindici euro al mese</strong> — senza suggerire
+    dove trovarli.</p>
+    <p style="color:rgba(255,255,255,0.8);">In fondo alla schermata, sempre visibile: questi numeri
+    derivano dall'obiettivo e dai limiti indicati dall'utente. <strong>Non sono una raccomandazione.</strong></p>
+    <div class="strip">
+      <span class="s-k">Componenti</span>
+      <span class="tag det">solver</span>
+      <span class="tag det">guardrail</span>
+      <span class="s-note">Nessun modello: sono date e divisioni. Il risultato esiste solo dopo che
+      l'utente ha premuto «mostrami come arrivarci», e il filtro impedisce comunque di nominare
+      una categoria che non ha dichiarato.</span>
     </div>
   </div>
 </section>
