@@ -13,5 +13,9 @@ export const routes: Routes = [
     path: 'profile',
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfilePage),
   },
+  {
+    path: 'consent',
+    loadComponent: () => import('./pages/consent/consent.component').then(m => m.ConsentPage),
+  },
   { path: '**', redirectTo: '' },
 ];
