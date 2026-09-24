@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { AgentState, Archetype, UserProfile, StepAnswer } from '../models/profile.model';
+import { AgentState, SpendingProfile, UserProfile, StepAnswer } from '../models/profile.model';
 import { environment } from '../../environments/environment';
 
 const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
@@ -90,10 +90,10 @@ export class ClaudeService {
   }
 
   private async step1(state: AgentState): Promise<AgentState['step1']> {
-    const system = `Sei un assistente educativo finanziario. NON dai consigli finanziari.
-Analizza le risposte e identifica il pain point finanziario dominante.
-Rispondi SOLO con JSON: {"painPoint":"<1 frase>","summary":"<2 frasi>"}
-Max 50 parole totali. Nessun testo aggiuntivo.`;
+    const system = `Sei un assistente per la gestione delle spese personali. NON dai consigli finanziari né di investimento.
+Analizza le informazioni sul nucleo familiare, entrate e uscite dell'utente.
+Rispondi SOLO con JSON: {"safeToSpend":"<importo stimato es. circa €700/mese>","summary":"<2 frasi in seconda persona, parla direttamente all'utente usando 'tu'>"}
+Max 60 parole. Nessun testo aggiuntivo.`;
 
     const user = JSON.stringify({ answers: state.answers });
     const text = await this.callClaude(system, user);
@@ -101,96 +101,150 @@ Max 50 parole totali. Nessun testo aggiuntivo.`;
   }
 
   private async step2(state: AgentState): Promise<AgentState['step2']> {
-    const system = `Sei un assistente educativo finanziario. NON dai consigli finanziari.
-Classifica l'utente: novice (0-8), aware (9-14), practitioner (15-20).
-Rispondi SOLO con JSON: {"archetype":"novice"|"aware"|"practitioner","score":<0-20>,"rationale":"<1 frase max 30 parole>"}
+    const system = `Classifica il profilo di spesa dell'utente.
+- tightly_budgeted: margine ridotto, spese fisse vicine alle entrate
+- balanced: buon equilibrio, piccolo margine di risparmio
+- comfortable: ampio margine, può permettersi flessibilità
+Rispondi SOLO con JSON: {"spendingProfile":"tightly_budgeted"|"balanced"|"comfortable","rationale":"<1 frase in seconda persona, max 25 parole>"}
 Nessun testo aggiuntivo.`;
 
     const user = JSON.stringify({
       answers: state.answers,
-      painPoint: state.step1?.painPoint,
+      safeToSpend: state.step1?.safeToSpend,
     });
     const text = await this.callClaude(system, user);
     return this.parseJson<AgentState['step2']>(text);
   }
 
   private async step3(state: AgentState): Promise<AgentState['step3']> {
-    const system = `Sei un assistente educativo finanziario. NON dai consigli finanziari né di investimento.
-Genera 3 micro-contenuti educativi per l'archetype e il pain point.
-Rispondi SOLO con JSON: {"lessons":[{"title":"<titolo>","body":"<max 40 parole>","emoji":"<emoji>"},...],"nextStep":"<1 frase>"}
-Max 150 parole totali. Nessun testo aggiuntivo.`;
+    const system = `Sei un assistente per la gestione delle spese quotidiane. NON dai consigli finanziari né di investimento.
+Genera consigli pratici sulle spese per questo utente specifico.
+Usa il "tu" — parla direttamente, mai in terza persona.
+Rispondi SOLO con JSON:
+{"canSpendOn":["<cosa puoi permetterti 1>","<cosa puoi permetterti 2>","<cosa puoi permetterti 3>"],"avoid":["<cosa evitare 1>","<cosa evitare 2>","<cosa evitare 3>"],"nextStep":"<1 frase: azione concreta che puoi fare subito>"}
+Sii specifico al nucleo familiare e al margine disponibile. NON consigliare prodotti, banche o investimenti. Nessun testo aggiuntivo.`;
 
     const user = JSON.stringify({
-      archetype: state.step2?.archetype,
-      painPoint: state.step1?.painPoint,
+      answers: state.answers,
+      safeToSpend: state.step1?.safeToSpend,
+      spendingProfile: state.step2?.spendingProfile,
     });
     const text = await this.callClaude(system, user);
     return this.parseJson<AgentState['step3']>(text);
   }
 
+  // ── Fallback locale ──────────────────────────────────────────────
+
+  private estimateSafeToSpend(answers: StepAnswer[]): number {
+    const incomeMap: Record<string, number> = { '<1000': 750, '1000-2000': 1500, '2000-3500': 2750, '>3500': 4000 };
+    const expMap: Record<string, number> = { '<400': 300, '400-800': 600, '800-1400': 1100, '>1400': 1600 };
+    const debtMap: Record<string, number> = { 'no': 0, 'si-piccoli': 150, 'si-significativi': 350 };
+
+    const income = incomeMap[answers[1]?.answer] ?? 1500;
+    const expenses = expMap[answers[2]?.answer] ?? 600;
+    const debts = debtMap[answers[3]?.answer] ?? 0;
+    return Math.max(0, income - expenses - debts);
+  }
+
   private fallbackStep1(state: AgentState): AgentState['step1'] {
-    const difficultyAnswer = state.answers[4]?.answer ?? 'spese quotidiane';
+    const safe = this.estimateSafeToSpend(state.answers);
+    const family = state.answers[0]?.answer ?? 'solo';
+    const familyLabel: Record<string, string> = {
+      solo: 'vivi da solo',
+      coppia: 'vivete in coppia',
+      'famiglia-piccola': 'avete una famiglia con figli',
+      'famiglia-grande': 'avete una famiglia numerosa',
+    };
     return {
-      painPoint: `L'utente ha difficoltà con: ${difficultyAnswer}`,
-      summary: 'Profilo determinato tramite analisi locale. Alcune aree di miglioramento identificate.',
+      safeToSpend: `circa €${safe}/mese`,
+      summary: `Considerando che ${familyLabel[family] ?? 'vivi da solo'}, il tuo margine mensile disponibile dopo le spese fisse è stimato in €${safe}. Questa è la cifra su cui puoi ragionare per le spese quotidiane.`,
     };
   }
 
   private fallbackStep2(state: AgentState): AgentState['step2'] {
-    let score = 0;
-    const a = state.answers;
-    if (a[1]?.answer === 'discreta' || a[1]?.answer === 'buona') score += 5;
-    if (a[2]?.answer === 'si') score += 3;
-    if (a[3]?.answer === 'si poco' || a[3]?.answer === 'si piano') score += 4;
-    if (a[5]?.answer === 'si') score += 5;
-    else if (a[5]?.answer === 'vagamente') score += 2;
+    const safe = this.estimateSafeToSpend(state.answers);
+    let spendingProfile: SpendingProfile;
+    let rationale: string;
 
-    const archetype: Archetype = score >= 15 ? 'practitioner' : score >= 9 ? 'aware' : 'novice';
-    const rationale =
-      archetype === 'novice'
-        ? 'Bassa familiarità con la finanza e strumenti di gestione.'
-        : archetype === 'aware'
-          ? 'Conosce qualcosa, ha un conto ma non gestisce attivamente.'
-          : 'Gestisce già entrate e uscite, conosce i termini base.';
+    if (safe < 300) {
+      spendingProfile = 'tightly_budgeted';
+      rationale = 'Il tuo margine è ridotto: ogni spesa va valutata con attenzione.';
+    } else if (safe < 800) {
+      spendingProfile = 'balanced';
+      rationale = 'Hai un buon equilibrio: puoi permetterti qualche spesa extra con giudizio.';
+    } else {
+      spendingProfile = 'comfortable';
+      rationale = 'Hai ampio margine disponibile: puoi permetterti flessibilità nelle spese.';
+    }
 
-    return { archetype, score, rationale };
+    return { spendingProfile, rationale };
   }
 
   private fallbackStep3(state: AgentState): AgentState['step3'] {
-    const archetype = state.step2?.archetype ?? 'novice';
-    const lessons =
-      archetype === 'novice'
-        ? [
-            { title: 'Cos\'è il netto in busta paga', body: 'Il netto è quello che ricevi davvero. Dal lordo si tolgono tasse e contributi obbligatori — quei soldi non sono mai stati tuoi.', emoji: '💰' },
-            { title: 'Il conto corrente è sicuro', body: 'I soldi sul conto sono garantiti fino a €100.000. Usarlo non costa niente per i pagamenti di base.', emoji: '🏦' },
-            { title: 'Inizia a tracciare le spese', body: 'Scrivi ogni spesa per 1 settimana. Non devi cambiare niente — solo capire dove va il denaro.', emoji: '📝' },
-          ]
-        : archetype === 'aware'
-          ? [
-              { title: 'INPS e IRPEF: cosa sono', body: 'INPS è la tua pensione futura. IRPEF è la tassa sul reddito. Entrambi vengono trattenuti prima che tu veda il netto.', emoji: '📋' },
-              { title: 'Il TFR non è perso', body: 'Il TFR (Trattamento Fine Rapporto) è un risparmio forzato. Lo ricevi quando lasci il lavoro — è tuo.', emoji: '🔒' },
-              { title: 'Regola del 50/30/20', body: '50% spese fisse, 30% variabili, 20% risparmio. Un punto di partenza per organizzare il budget mensile.', emoji: '📊' },
-            ]
-          : [
-              { title: 'Simula il tuo safe to spend', body: 'Prendi il netto mensile. Sottrai tutte le spese fisse. Il resto è il tuo "safe to spend" — quello che puoi spendere o risparmiare.', emoji: '🧮' },
-              { title: 'Fondo emergenze: 3 mesi di spese', body: 'Un fondo emergenze copre imprevisti senza indebitarsi. L\'obiettivo standard: 3 mesi di spese fisse in liquidità.', emoji: '🛡️' },
-              { title: 'Inflazione e potere d\'acquisto', body: 'Se l\'inflazione è al 3% e i tuoi risparmi non crescono, perdi potere d\'acquisto ogni anno. Capire questo aiuta a pianificare.', emoji: '📈' },
-            ];
+    const profile = state.step2?.spendingProfile ?? 'balanced';
+    const family = state.answers[0]?.answer ?? 'solo';
+    const futurePlans = state.answers[5]?.answer ?? 'no';
+    const hasFuturePlans = futurePlans !== 'no';
+
+    const adviceMap: Record<SpendingProfile, { canSpendOn: string[]; avoid: string[] }> = {
+      tightly_budgeted: {
+        canSpendOn: [
+          'Spesa alimentare settimanale pianificata con lista',
+          'Trasporti necessari (abbonamento vs. singoli biglietti)',
+          'Una piccola uscita mensile programmata',
+        ],
+        avoid: [
+          'Acquisti impulsivi fuori budget',
+          hasFuturePlans ? 'Spese non pianificate: stai accantonando per quella spesa futura' : 'Spese voluttuarie non essenziali',
+          family === 'solo' ? 'Abbonamenti che non usi davvero' : 'Spese extra per i bambini non pianificate',
+        ],
+      },
+      balanced: {
+        canSpendOn: [
+          'Uscite sociali una-due volte a settimana',
+          'Piccoli acquisti per la casa o il benessere',
+          hasFuturePlans ? 'Accantonamento mensile per la spesa futura pianificata' : 'Un piccolo risparmio mensile',
+        ],
+        avoid: [
+          'Acquisti grandi non pianificati questo mese',
+          'Rate nuove se hai già impegni in corso',
+          'Spese d\'impulso online (notifiche di offerte)',
+        ],
+      },
+      comfortable: {
+        canSpendOn: [
+          'Uscite, tempo libero e svago senza senso di colpa',
+          hasFuturePlans ? 'Accantona per la spesa futura: hai il margine' : 'Un fondo emergenze mensile',
+          family.includes('famiglia') ? 'Attività ed esperienze per tutta la famiglia' : 'Esperienze e viaggi programmati',
+        ],
+        avoid: [
+          'Spese ricorrenti dimenticate (abbonamenti zombie)',
+          'Finanziamenti a rate per cose che puoi acquistare subito',
+          'Spese non consapevoli: traccia anche tu per capire dove va il denaro',
+        ],
+      },
+    };
+
+    const nextStepMap: Record<SpendingProfile, string> = {
+      tightly_budgeted: 'Annota tutte le spese questa settimana per capire dove puoi recuperare margine.',
+      balanced: 'Imposta un piccolo accantonamento automatico mensile, anche solo €50.',
+      comfortable: 'Controlla gli abbonamenti attivi: probabilmente ne paghi qualcuno che non usi più.',
+    };
 
     return {
-      lessons,
-      nextStep: 'Calcola il tuo safe to spend mensile sottraendo tutte le spese fisse dal netto in busta paga.',
+      ...adviceMap[profile],
+      nextStep: nextStepMap[profile],
     };
   }
 
   private toProfile(state: AgentState): UserProfile {
     return {
-      archetype: state.step2!.archetype,
-      score: state.step2!.score,
-      painPoint: state.step1!.painPoint,
+      safeToSpend: state.step1!.safeToSpend,
       summary: state.step1!.summary,
+      spendingProfile: state.step2!.spendingProfile,
       rationale: state.step2!.rationale,
-      lessons: state.step3!.lessons,
+      canSpendOn: state.step3!.canSpendOn,
+      avoid: state.step3!.avoid,
       nextStep: state.step3!.nextStep,
     };
   }

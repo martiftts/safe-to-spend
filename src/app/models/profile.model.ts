@@ -1,10 +1,4 @@
-export type Archetype = 'novice' | 'aware' | 'practitioner';
-
-export interface Lesson {
-  title: string;
-  body: string;
-  emoji: string;
-}
+export type SpendingProfile = 'tightly_budgeted' | 'balanced' | 'comfortable';
 
 export interface StepAnswer {
   question: string;
@@ -13,17 +7,17 @@ export interface StepAnswer {
 
 export interface AgentState {
   answers: StepAnswer[];
-  step1?: { painPoint: string; summary: string };
-  step2?: { archetype: Archetype; score: number; rationale: string };
-  step3?: { lessons: Lesson[]; nextStep: string };
+  step1?: { safeToSpend: string; summary: string };
+  step2?: { spendingProfile: SpendingProfile; rationale: string };
+  step3?: { canSpendOn: string[]; avoid: string[]; nextStep: string };
 }
 
 export interface UserProfile {
-  archetype: Archetype;
-  score: number;
-  painPoint: string;
+  safeToSpend: string;
   summary: string;
+  spendingProfile: SpendingProfile;
   rationale: string;
-  lessons: Lesson[];
+  canSpendOn: string[];
+  avoid: string[];
   nextStep: string;
 }
