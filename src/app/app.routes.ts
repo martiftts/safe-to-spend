@@ -18,6 +18,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/consent/consent.component').then(m => m.ConsentPage),
   },
   {
+    path: 'setup',
+    loadComponent: () => import('./pages/setup/setup.component').then(m => m.SetupPage),
+  },
+  {
     path: 'simulator',
     loadComponent: () => import('./pages/simulator/simulator.component').then(m => m.SimulatorPage),
   },

@@ -75,17 +75,78 @@ function groupByCategoria(movimenti: Movimento[]): SpesaPerCategoria[] {
   })).sort((a, b) => b.importoMensile - a.importoMensile);
 }
 
+/** Da dove arriva il profilo attualmente in uso. */
+export type ProfileSource = 'manuale' | 'preset';
+
+/** Punto di partenza dell'inserimento da zero. */
+export const EMPTY_PROFILE: HouseholdProfile = {
+  nucleo: { adulti: 1, minori: 0, percettori: 1 },
+  reddito: { nettoMensile: 0, mensilita: 12, accessoriAnnui: 0 },
+  debiti: [],
+  speseFisse: [],
+  speseFuture: [],
+  saldoAttuale: 0,
+};
+
 @Injectable({ providedIn: 'root' })
 export class BankingService {
-  readonly selectedPresetId = signal<string>('monoreddito-figli');
+  /**
+   * Il percorso predefinito è l'inserimento dei propri dati. I preset restano
+   * come scorciatoia dichiarata dalla home, per vedere risultati calcolati
+   * senza compilare tutto a mano.
+   */
+  readonly source = signal<ProfileSource>('manuale');
+  readonly selectedPresetId = signal<string | null>(null);
+  readonly manualProfile = signal<HouseholdProfile | null>(null);
 
-  readonly preset = computed<HouseholdPreset | undefined>(() =>
-    HOUSEHOLD_PRESETS.find(p => p.id === this.selectedPresetId())
-  );
+  readonly preset = computed<HouseholdPreset | undefined>(() => {
+    const id = this.selectedPresetId();
+    return id ? HOUSEHOLD_PRESETS.find(p => p.id === id) : undefined;
+  });
 
   readonly profile = computed<HouseholdProfile | undefined>(() =>
-    this.preset()?.profile
+    this.source() === 'preset' ? this.preset()?.profile : this.manualProfile() ?? undefined
   );
+
+  /** Vero quando c'è un profilo su cui il cruscotto può lavorare. */
+  readonly hasProfile = computed(() => this.profile() !== undefined);
+
+  /** Carica un profilo di esempio e salta l'inserimento. */
+  loadPreset(id: string): void {
+    this.selectedPresetId.set(id);
+    this.source.set('preset');
+  }
+
+  /** Inizia un inserimento da zero. */
+  startManual(): void {
+    this.manualProfile.set({ ...EMPTY_PROFILE });
+    this.selectedPresetId.set(null);
+    this.source.set('manuale');
+  }
+
+  /**
+   * Scrive il profilo inserito a mano. Se si stava guardando un preset,
+   * il valore diventa il punto di partenza invece di essere perso.
+   */
+  setManualProfile(p: HouseholdProfile): void {
+    this.manualProfile.set(p);
+    this.selectedPresetId.set(null);
+    this.source.set('manuale');
+  }
+
+  /** Aggiorna le sole spese future, da qualunque origine venga il profilo. */
+  setSpeseFuture(speseFuture: HouseholdProfile['speseFuture']): void {
+    const base = this.profile();
+    if (!base) return;
+    this.setManualProfile({ ...base, speseFuture });
+  }
+
+  /** Svuota tutto e riporta all'ingresso, senza ricaricare la pagina. */
+  reset(): void {
+    this.manualProfile.set(null);
+    this.selectedPresetId.set(null);
+    this.source.set('manuale');
+  }
 
   readonly bankingData = computed<BankingData | undefined>(() => {
     const p = this.profile();
@@ -114,8 +175,4 @@ export class BankingService {
     const p = this.profile();
     return p ? computeIndicators(p) : undefined;
   });
-
-  selectPreset(id: string): void {
-    this.selectedPresetId.set(id);
-  }
 }
