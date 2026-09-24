@@ -1,3 +1,64 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --brand:        #A100FF;
+    --brand-light:  #BE82FF;
+    --brand-dark:   #460073;
+    --rose:         #FF50A0;
+    --surface-bg:   #050008;
+    --muted:        rgba(255,255,255,0.62);
+    --faint:        rgba(255,255,255,0.38);
+    --line:         rgba(255,255,255,0.12);
+    --panel:        rgba(255,255,255,0.03);
+  }
+
+  html, body {
+    @apply antialiased;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+@layer components {
+  /* Bottone primario — viola Accenture */
+  .btn-primary {
+    @apply bg-[#A100FF] hover:bg-[#8800d9] active:scale-95 text-white font-semibold
+           px-6 py-3 rounded-xl transition-all;
+  }
+
+  /* Bottone secondario — outline su sfondo scuro */
+  .btn-ghost {
+    @apply bg-white/10 hover:bg-white/20 active:scale-95 text-white font-semibold
+           px-6 py-3 rounded-xl transition-all border border-white/20;
+  }
+
+  /* Card su sfondo chiaro */
+  .card {
+    @apply bg-white rounded-xl border border-gray-200;
+  }
+
+  /* Card su sfondo scuro */
+  .card-dark {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    @apply rounded-xl;
+  }
+
+  /* Testo sfumato brand */
+  .text-brand-gradient {
+    background: linear-gradient(90deg, #BE82FF, #A100FF);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Badge / eyebrow */
+  .eyebrow {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.05);
+    @apply inline-block rounded-full px-3 py-1 text-[10px] uppercase tracking-widest;
+    color: var(--muted);
+  }
+}
