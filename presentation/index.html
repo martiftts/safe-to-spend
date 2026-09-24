@@ -71,6 +71,14 @@
   .strip .s-sep { color: rgba(255,255,255,0.16); }
   .strip .s-note { font-size: 12.5px; color: var(--muted); width: 100%; margin-top: 2px; }
 
+  /* copertina: titolo grande e centrato */
+  .cover { align-items: center; text-align: center; }
+  .cover h1 { font-size: 104px; letter-spacing: -0.045em; line-height: 1; margin: 0 0 40px; }
+  .cover .lead { font-size: 21px; max-width: 64ch; margin-left: auto; margin-right: auto; }
+  .cover .ask-k { font-size: 15px; color: var(--faint); letter-spacing: 0.02em; margin: 34px 0 8px; }
+  .cover .ask { margin: 0; font-size: 34px; color: #fff; font-weight: 600; letter-spacing: -0.02em; max-width: none; }
+  @media (max-width: 1000px) { .cover h1 { font-size: 52px; } .cover .ask { font-size: 24px; } }
+
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; align-items: start; }
   .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .panel { border: 1px solid var(--line); background: var(--panel); border-radius: 14px; padding: 18px 20px; }
@@ -204,27 +212,22 @@
 <div class="hint">← → per navigare</div>
 
 <!-- 01 · copertina ─────────────────────────────────────────── -->
-<section class="slide">
-  <span class="eyebrow">Hagenthon · Tema 02 · Inclusione finanziaria</span>
+<section class="slide cover">
   <h1>Safe to <span class="grad">Spend</span></h1>
-  <p class="lead" style="font-size:22px;max-width:62ch;">
+  <p class="lead">
     Una funzione dentro l'app della banca in cui hai il conto. Non un servizio da installare
     e a cui dare accesso: è già dove i tuoi soldi sono.
   </p>
-  <p class="lead" style="font-size:22px;max-width:62ch;">
+  <p class="lead">
     Conosce già movimenti, mutuo e rate. Chiede solo il permesso di guardare quello che c'è altrove,
     e l'unica cosa che i conti non dicono: le spese che hai già in programma.
   </p>
-  <p class="lead" style="font-size:22px;max-width:62ch;">
+  <p class="lead">
     Serve a far capire quanto resta davvero, e a mettere in conto gli obiettivi
     che una persona ha in testa.
   </p>
-  <p style="margin-top:26px;margin-bottom:6px;font-size:15px;color:var(--faint);letter-spacing:0.02em;">
-    La domanda a cui risponde è:
-  </p>
-  <p style="margin:0;font-size:27px;color:#fff;font-weight:600;letter-spacing:-0.02em;">
-    «Quanto posso spendere <span class="grad">oggi</span>?»
-  </p>
+  <p class="ask-k">La domanda a cui risponde è:</p>
+  <p class="ask">«Quanto posso spendere <span class="grad">oggi</span>?»</p>
 </section>
 
 <!-- 02 · il problema ───────────────────────────────────────── -->
