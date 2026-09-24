@@ -18,6 +18,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/consent/consent.component').then(m => m.ConsentPage),
   },
   {
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardPage),
+  },
+  {
     path: 'future-expenses',
     loadComponent: () => import('./pages/future-expenses/future-expenses.component').then(m => m.FutureExpensesPage),
   },
